@@ -1,0 +1,45 @@
+/* Define custom properties for the calendar component inside .rdp-root */
+.rdp-root {
+  --rdp-cell-size: 40px;
+  margin: 1em;
+
+  /* Cores do calendário */
+  --rdp-accent-color: #8B5CF6; /* Cor roxa para elementos de destaque */
+  --rdp-today-color: #8B5CF6; /* Cor roxa para o dia de hoje */
+  --rdp-background-color: var(--background);
+  --rdp-color: hsl(var(--foreground));
+  --rdp-button-color: hsl(var(--foreground));
+}
+
+.rdp-day_today:not(.rdp-day_selected) {
+  font-weight: bold;
+}
+
+/* Style for the caption label (e.g., "May 2024") */
+.rdp-caption_label {
+  font-weight: bold;
+  color: var(--rdp-color);
+}
+
+/* Style for days with scheduled events */
+.day-scheduled {
+    position: relative;
+}
+
+/* Dot indicator for scheduled days */
+.day-scheduled::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--rdp-accent-color);
+}
+
+/* Increase font size on hover */
+.rdp-day:hover {
+  font-size: calc(1em + 1pt);
+}
