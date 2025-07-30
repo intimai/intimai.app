@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export function AgendaPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { intimacoes, fetchAgendamentos } = useIntimacoes();
+  const { intimacoes, agendamentosDoDia, fetchAgendamentos } = useIntimacoes();
 
   useEffect(() => {
     if (selectedDate) {
@@ -42,7 +42,7 @@ export function AgendaPage() {
             <div>
               <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Agendamentos do Dia</h2>
               <div className="max-h-[400px] overflow-y-auto pr-2">
-                <AgendaDoDia selectedDate={selectedDate} />
+                <AgendaDoDia selectedDate={selectedDate} agendamentos={agendamentosDoDia} />
               </div>
             </div>
           </div>

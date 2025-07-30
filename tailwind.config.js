@@ -51,13 +51,7 @@ module.exports = {
 					foreground: 'hsl(var(--card-foreground))',
 				},
         'gradient-light': '#9157d9',
-        chart: {
-          'pendentes': 'hsl(var(--pendentes))',
-          'enviadas': 'hsl(var(--enviadas))',
-          'encerradas': 'hsl(var(--encerradas))',
-          'ativas': 'hsl(var(--ativas))',
-          'canceladas': 'hsl(var(--canceladas))',
-        },
+        chart: require('./src/config/chartColors').chartColors,
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

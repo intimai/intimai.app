@@ -1,8 +1,5 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
-import { theme } from '@/config/theme';
-
-const statusColorMapping = theme.colors.chart;
 
 const StatsChart = ({ data }) => {
   const chartData = data.filter(item => item.name !== 'Total');
@@ -33,14 +30,18 @@ const StatsChart = ({ data }) => {
           label={false}
         >
           {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={statusColorMapping[entry.name.toLowerCase()] || '#cccccc'} />
+            <Cell key={`cell-${index}`} fill={entry.color || '#cccccc'} />
           ))}
         </Pie>
         <Legend 
           layout="horizontal" 
           verticalAlign="bottom" 
           align="center" 
-          formatter={(value, entry, index) => <span className="text-gray-600 text-sm">{value}</span>} 
+          formatter={(value, entry) => (
+            <span className="text-gray-600 text-sm">
+              {value} ({entry.payload.value})
+            </span>
+          )} 
         />
       </PieChart>
     </ResponsiveContainer>

@@ -27,12 +27,8 @@
   --ring: 258 100% 60%;
   --radius: 0.5rem;
 
-  /* Cores do gráfico com status */
-  --pendentes: 94 66% 72%; /* #9EE37D */
-  --enviadas: 275 65% 50%; /* #6D28D9 */
-  --encerradas: 273 59% 60%; /* #9157D9 */
-  --ativas: 326 84% 67%; /* #F15BB5 */
-  --canceladas: 199 71% 52%; /* #1EA4D9 */
+  --enviadas: 275 65% 50%;
+  --encerradas: 273 59% 60%;
 }
 
 .dark {
@@ -56,12 +52,8 @@
   --input: 0 0% 14.9%;
   --ring: 258 100% 60%;
 
-  /* Cores do gráfico com status para o modo escuro */
-  --pendentes: 94 66% 72%;
   --enviadas: 275 65% 50%;
   --encerradas: 273 59% 60%;
-  --ativas: 326 84% 67%;
-  --canceladas: 199 71% 52%;
 }
 
 @layer base {

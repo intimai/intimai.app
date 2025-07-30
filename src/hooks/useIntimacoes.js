@@ -77,7 +77,7 @@ export function useIntimacoes() {
   const cancelIntimacao = async (intimacaoId) => {
     const { data, error } = await supabase
       .from('intimacoes')
-      .update({ status: 'cancelada', motivoCancelamento: 'Cancelado pelo usuário' })
+      .update({ cancelamentoEmAndamento: true })
       .eq('id', intimacaoId)
       .select();
 

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from './CreateIntimacaoModal';
 import { IntimacaoCard } from './IntimacaoCard';
-import { theme } from '@/config/theme';
+
 
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -15,9 +15,19 @@ export function IntimacoesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const { intimacoes, loading } = useIntimacoes();
 
+  const statusMap = {
+    pendentes: 'pendente',
+    entregues: 'entregue',
+    ativas: 'ativa',
+    agendadas: 'agendada',
+    recusadas: 'recusada',
+    canceladas: 'cancelada',
+  };
+
   const filteredIntimacoes = useMemo(() => {
     return intimacoes.filter(intimacao => {
-      const statusMatch = filter === 'todas' || intimacao.status === filter;
+      const filterSingular = statusMap[filter] || filter;
+      const statusMatch = filter === 'todas' || intimacao.status === filterSingular;
       const searchMatch = searchTerm === '' ||
         (intimacao.intimadoNome && intimacao.intimadoNome.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (intimacao.documento && intimacao.documento.includes(searchTerm));
@@ -66,32 +76,51 @@ export function IntimacoesPage() {
             <div className="mt-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-wrap -mb-px gap-x-4">
                   {[
-                    { key: 'todas', label: 'Todas', color: '#FAFAFA' },
-                    ...Object.entries(theme.colors.chart).map(([key, color]) => ({
-                      key,
-                      label: key.charAt(0).toUpperCase() + key.slice(1),
-                      color,
-                    })),
-                  ].map(f => (
-                  <button
-                    key={f.key}
-                    onClick={() => setFilter(f.key)}
-                    className={`
-                      py-2 px-1 text-sm font-medium transition-all duration-200
-                      border-b-2
-                      ${filter === f.key
-                        ? 'font-bold'
-                        : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-                      }
-                    `}
-                    style={{
-                      color: f.color,
-                      borderColor: filter === f.key ? f.color : 'transparent',
-                    }}
-                  >
-                    {f.label}
-                  </button>
-                  ))}
+                    { key: 'todas', label: 'Todas' },
+                    { key: 'pendentes', label: 'Pendentes' },
+                    { key: 'entregues', label: 'Entregues' },
+                    { key: 'ativas', label: 'Ativas' },
+                    { key: 'agendadas', label: 'Agendadas' },
+                    { key: 'recusadas', label: 'Recusadas' },
+                    { key: 'canceladas', label: 'Canceladas' },
+                  ].map(f => {
+                    const textColors = {
+                      todas: 'text-white',
+                      pendentes: 'text-chart-pendentes',
+                      entregues: 'text-chart-entregues',
+                      ativas: 'text-chart-ativas',
+                      agendadas: 'text-chart-agendadas',
+                      recusadas: 'text-chart-recusadas',
+                      canceladas: 'text-chart-canceladas',
+                    };
+
+                    const borderColors = {
+                      todas: 'border-white',
+                      pendentes: 'border-chart-pendentes',
+                      entregues: 'border-chart-entregues',
+                      ativas: 'border-chart-ativas',
+                      agendadas: 'border-chart-agendadas',
+                      recusadas: 'border-chart-recusadas',
+                      canceladas: 'border-chart-canceladas',
+                    };
+
+                    const textColorClass = textColors[f.key] || 'text-white';
+                    const borderColorClass = filter === f.key ? borderColors[f.key] : 'border-transparent';
+
+                    return (
+                      <button
+                        key={f.key}
+                        onClick={() => setFilter(f.key)}
+                        className={`
+                          py-2 px-1 text-sm font-medium transition-all duration-200
+                          border-b-2 hover:border-gray-300 dark:hover:border-gray-600
+                          ${filter === f.key ? 'font-bold' : ''} ${textColorClass} ${borderColorClass}
+                        `}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
 

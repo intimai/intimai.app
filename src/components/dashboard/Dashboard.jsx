@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from './CreateIntimacaoModal';
 import StatsChart from './StatsChart';
-import { theme } from '@/config/theme';
+import { chartColors } from '@/config/chartColors';
+
 
 
 export function Dashboard() {
@@ -16,27 +17,42 @@ export function Dashboard() {
 
   const statsData = useMemo(() => {
     const counts = {
-      pendente: 0,
-      realizada: 0,
-      cancelada: 0,
-      ausente: 0,
+      pendentes: 0,
+      entregues: 0,
+      ativas: 0,
+      agendadas: 0,
+      recusadas: 0,
+      canceladas: 0,
+    };
+
+    // Mapeia o status da intimação (singular) para a chave de contagem (plural)
+    const statusToPlural = {
+      pendente: 'pendentes',
+      entregue: 'entregues',
+      ativa: 'ativas',
+      agendada: 'agendadas',
+      recusada: 'recusadas',
+      cancelada: 'canceladas',
     };
 
     intimacoes.forEach(intimacao => {
-      if (counts[intimacao.status] !== undefined) {
-        counts[intimacao.status]++;
+      const pluralStatus = statusToPlural[intimacao.status];
+      if (pluralStatus) {
+        counts[pluralStatus]++;
       }
     });
 
     const data = [
-      { name: 'Pendentes', value: counts.pendente, color: theme.colors.chart.pendentes },
-      { name: 'Realizadas', value: counts.realizada, color: theme.colors.chart.realizadas },
-      { name: 'Canceladas', value: counts.cancelada, color: theme.colors.chart.canceladas },
-      { name: 'Ausentes', value: counts.ausente, color: theme.colors.chart.ausentes },
+      { name: 'Pendentes', value: counts.pendentes, color: chartColors.pendentes },
+      { name: 'Entregues', value: counts.entregues, color: chartColors.entregues },
+      { name: 'Ativas', value: counts.ativas, color: chartColors.ativas },
+      { name: 'Agendadas', value: counts.agendadas, color: chartColors.agendadas },
+      { name: 'Recusadas', value: counts.recusadas, color: chartColors.recusadas },
+      { name: 'Canceladas', value: counts.canceladas, color: chartColors.canceladas },
     ].filter(item => item.value > 0);
 
     return data;
-  }, [intimacoes, theme]);
+  }, [intimacoes]);
   const mesAtual = new Date().toLocaleString('default', { month: 'long' });
 
   if (loading) {
