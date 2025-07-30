@@ -27,19 +27,23 @@ export function AgendaPage() {
       </Card>
 
       <Card>
-        <CardContent className="p-4 space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <CardContent className="p-6 pb-8 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Coluna do Calendário */}
-            <div className="flex justify-center">
-              <AgendaCalendar
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-                intimacoes={intimacoes}
-              />
+            <div className="lg:col-span-2">
+              <div className="flex justify-center">
+                <div className="w-full max-w-sm">
+                  <AgendaCalendar
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    intimacoes={intimacoes}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Coluna dos Agendamentos do Dia */}
-            <div>
+            <div className="lg:col-span-3">
               <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Agendamentos do Dia</h2>
               <div className="max-h-[400px] overflow-y-auto pr-2">
                 <AgendaDoDia selectedDate={selectedDate} agendamentos={agendamentosDoDia} />

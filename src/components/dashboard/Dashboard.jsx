@@ -53,6 +53,8 @@ export function Dashboard() {
 
     return data;
   }, [intimacoes]);
+
+  const totalIntimacoes = intimacoes.length;
   const mesAtual = new Date().toLocaleString('default', { month: 'long' });
 
   if (loading) {
@@ -77,13 +79,17 @@ export function Dashboard() {
       </Card>
 
       <Card>
-        <CardContent className="p-4 space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => setShowCreateModal(true)} className="btn-primary">
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Intimação
-            </Button>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div>
+            <p className="text-sm text-muted-foreground">Total de Intimações</p>
+            <p className="text-2xl font-bold">{totalIntimacoes}</p>
           </div>
+          <Button onClick={() => setShowCreateModal(true)} className="btn-primary">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Intimação
+          </Button>
+        </CardHeader>
+        <CardContent className="p-4 space-y-4">
           <StatsChart data={statsData} />
         </CardContent>
       </Card>

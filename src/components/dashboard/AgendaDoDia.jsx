@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, ChevronDown, ChevronUp, User, FileText, Phone, FileType, Hash, X } from 'lucide-react';
+import { Clock, User, FileText, Phone, FileType, Hash, X } from 'lucide-react';
+import ExpansionButton from '../ui/ExpansionButton';
 import { Button } from '@/components/ui/button';
 import ConfirmationModal from '../ui/ConfirmationModal';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
@@ -40,14 +41,13 @@ const AgendaItem = ({ intimacao }) => {
           <p className="font-bold flex items-center"><User className="w-4 h-4 mr-2 text-chart-agendadas" />{intimacao.intimadoNome}</p>
                     <div className="flex items-center mt-1">
             <p className="text-sm text-muted-foreground flex items-center"><Clock className="w-4 h-4 mr-2 text-chart-entregues" />{formatTime(intimacao.horaAgendada)}</p>
-            <Button variant="ghost" size="icon" onClick={handleOpenModal} className="h-6 w-6 ml-2">
-                <X className="w-4 h-4 text-chart-canceladas" />
-              </Button>
+            <Button variant="ghost" onClick={handleOpenModal} className="h-auto p-0 ml-4 flex items-center">
+              <X className="w-4 h-4 text-chart-canceladas mr-1" />
+              <span className="text-sm text-muted-foreground">Cancelar</span>
+            </Button>
           </div>
         </div>
-        <button className="focus:outline-none">
-          {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-        </button>
+        <ExpansionButton isExpanded={expanded} onClick={() => setExpanded(!expanded)} />
       </div>
 
       {expanded && (

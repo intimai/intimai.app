@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, User, LayoutDashboard, FileText, Calendar, XCircle, UserCircle, HelpCircle } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, FileText, Calendar, XCircle, UserCircle, HelpCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 
@@ -33,7 +33,7 @@ export function Sidebar() {
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out hover:text-sm-plus-1 ${
+              `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${
                 isActive
                   ? 'text-gradient-light'
                   : 'text-muted-foreground hover:text-foreground'
@@ -52,7 +52,31 @@ export function Sidebar() {
         ))}
       </nav>
 
-      
+      <div className="mt-auto flex flex-col space-y-2 pt-4 border-t border-border">
+          <NavLink
+            to="/privacy-policy"
+            className={({ isActive }) =>
+              `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${
+                isActive
+                  ? 'text-gradient-light'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <ShieldCheck
+                  className={`w-5 h-5 mr-3 transition-colors duration-200 ease-in-out ${isActive ? 'text-gradient-light' : ''}`}
+                />
+                <span>Política de Privacidade</span>
+              </>
+            )}
+          </NavLink>
+          <Button variant="ghost" onClick={signOut} className="w-full justify-start px-3 py-2 text-muted-foreground hover:text-foreground text-sm font-medium h-auto">
+            <LogOut className="w-5 h-5 mr-3" />
+            <span>Sair</span>
+          </Button>
+        </div>
     </aside>
   );
 }

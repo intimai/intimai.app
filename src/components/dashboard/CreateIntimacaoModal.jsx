@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, Phone, FileText, Send, ClipboardList, Hash } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import InputMask from 'react-input-mask';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,38 +13,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { toast } from '@/components/ui/use-toast';
 
+const formSchema = z.object({
+  intimadoNome: z.string({ required_error: 'Nome é obrigatório.' }).min(3, 'Nome deve ter no mínimo 3 caracteres.'),
+  documento: z.string({ required_error: 'Documento é obrigatório.' }).min(5, 'Documento inválido.'),
+  telefone: z.string({ required_error: 'Telefone é obrigatório.' }).refine((val) => /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(val), {
+    message: 'Formato de telefone inválido. Use (XX) XXXX-XXXX ou (XX) XXXXX-XXXX.',
+  }),
+  tipoProcedimento: z.string({ required_error: 'Tipo de procedimento é obrigatório.' }).min(1, 'Tipo de procedimento é obrigatório.'),
+  numeroProcedimento: z.string({ required_error: 'Número do procedimento é obrigatório.' }).min(1, 'Número do procedimento é obrigatório.'),
+  dataAgendada: z.string({ required_error: 'Data é obrigatória.' }).refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+    return selectedDate > today;
+  }, {
+    message: 'A data não pode ser hoje ou no passado.',
+  }),
+  periodo: z.enum(['manha', 'tarde', 'ambos'], { required_error: 'Período é obrigatório.' }),
+});
+
 export function CreateIntimacaoModal({ open, onClose }) {
-  const [formData, setFormData] = useState({
-    intimadoNome: '',
-    documento: '',
-    telefone: '',
-    tipoProcedimento: '',
-    numeroProcedimento: '',
-    dataAgendada: '',
-    periodo: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const { createIntimacao } = useIntimacoes();
+  const { register, handleSubmit, control, formState: { errors, isSubmitting }, reset } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      intimadoNome: '',
+      documento: '',
+      telefone: '',
+      tipoProcedimento: '',
+      numeroProcedimento: '',
+      dataAgendada: '',
+      periodo: '',
+    },
+  });
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.intimadoNome.trim()) newErrors.intimadoNome = 'Nome é obrigatório';
-    if (!formData.documento.trim()) newErrors.documento = 'Documento é obrigatório';
-    if (!formData.telefone.trim()) newErrors.telefone = 'Telefone é obrigatório';
-    if (!formData.tipoProcedimento.trim()) newErrors.tipoProcedimento = 'Tipo de procedimento é obrigatório';
-    if (!formData.numeroProcedimento.trim()) newErrors.numeroProcedimento = 'Número do procedimento é obrigatório';
-    if (!formData.dataAgendada) newErrors.dataAgendada = 'Data é obrigatória';
-    if (!formData.periodo) newErrors.periodo = 'Período é obrigatório';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setLoading(true);
-
+  const onSubmit = async (formData) => {
     try {
       const { dataAgendada, periodo, ...rest } = formData;
       
@@ -61,13 +69,16 @@ export function CreateIntimacaoModal({ open, onClose }) {
 
       await createIntimacao(dadosParaSalvar);
       toast({ title: "Intimação criada com sucesso!" });
-      setFormData({ intimadoNome: '', documento: '', telefone: '', tipoProcedimento: '', numeroProcedimento: '', dataAgendada: '', periodo: '' });
+      reset();
       onClose();
     } catch (error) {
       toast({ title: "Erro ao criar intimação", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
   };
 
   if (!open) return null;
@@ -78,38 +89,44 @@ export function CreateIntimacaoModal({ open, onClose }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="active-link-gradient italic">Nova Intimação</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}><X className="w-5 h-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={handleClose}><X className="w-5 h-5" /></Button>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field id="intimadoNome" label="Nome Completo" error={errors.intimadoNome} value={formData.intimadoNome} onChange={(e) => setFormData({...formData, intimadoNome: e.target.value})} />
-                <Field id="documento" label="Documento (CPF/RG)" error={errors.documento} value={formData.documento} onChange={(e) => setFormData({...formData, documento: e.target.value})} />
+                <Field id="intimadoNome" label="Nome Completo" error={errors.intimadoNome} register={register} name="intimadoNome" />
+                <Field id="documento" label="Documento (CPF/RG)" error={errors.documento} register={register} name="documento" />
               </div>
-              <Field id="telefone" label="Telefone" error={errors.telefone} value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: e.target.value})} placeholder="(11) 99999-9999" />
+              <MaskedField id="telefone" label="Telefone" error={errors.telefone} control={control} name="telefone" mask="(99) 99999-9999" placeholder="(XX) XXXXX-XXXX" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field id="tipoProcedimento" label="Tipo de Procedimento" error={errors.tipoProcedimento} value={formData.tipoProcedimento} onChange={(e) => setFormData({...formData, tipoProcedimento: e.target.value})} />
-                <Field id="numeroProcedimento" label="Número do Procedimento" error={errors.numeroProcedimento} value={formData.numeroProcedimento} onChange={(e) => setFormData({...formData, numeroProcedimento: e.target.value})} type="number" />
+                <Field id="tipoProcedimento" label="Tipo de Procedimento" error={errors.tipoProcedimento} register={register} name="tipoProcedimento" />
+                <Field id="numeroProcedimento" label="Número do Procedimento" error={errors.numeroProcedimento} register={register} name="numeroProcedimento" type="text" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field id="dataAgendada" label="Data" error={errors.dataAgendada} value={formData.dataAgendada} onChange={(e) => setFormData({...formData, dataAgendada: e.target.value})} type="date" />
+                <Field id="dataAgendada" label="Data" error={errors.dataAgendada} type="date" register={register} name="dataAgendada" className="dark:[color-scheme:dark]" />
                 <div>
                   <Label htmlFor="periodo">Período</Label>
-                  <Select value={formData.periodo} onValueChange={(value) => setFormData({...formData, periodo: value})}>
-                    <SelectTrigger className={errors.periodo ? 'border-red-500' : ''}><SelectValue placeholder="Selecione o período" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="manha">🌅 Manhã</SelectItem>
-                      <SelectItem value="tarde">🌆 Tarde</SelectItem>
-                      <SelectItem value="ambos">🌅🌆 Ambos</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.periodo && <p className="text-sm text-red-500 mt-1">{errors.periodo}</p>}
+                  <Controller
+                    name="periodo"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger className={errors.periodo ? 'border-red-500' : ''}><SelectValue placeholder="Selecione o período" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="manha">🌅 Manhã</SelectItem>
+                          <SelectItem value="tarde">🌆 Tarde</SelectItem>
+                          <SelectItem value="ambos">🌅🌆 Ambos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.periodo && <p className="text-sm text-red-500 mt-1">{errors.periodo.message}</p>}
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-                <Button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Enviando...' : <><Send className="w-4 h-4 mr-2" />Gerar Intimação</>}
+                <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
+                <Button type="submit" className="btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Enviando...' : <><Send className="w-4 h-4 mr-2" />Gerar Intimação</>}
                 </Button>
               </div>
             </form>
@@ -120,16 +137,45 @@ export function CreateIntimacaoModal({ open, onClose }) {
   );
 }
 
-const Field = ({ id, label, error, isTextarea, ...props }) => (
+const Field = ({ id, label, error, register, name, ...props }) => (
   <div>
     <Label htmlFor={id}>{label}</Label>
-    <div className="relative">
-      {isTextarea ? (
-        <textarea id={id} className={`w-full pr-4 py-3 border rounded-lg resize-none input-elegant ${error ? 'border-red-500' : ''}`} {...props} />
-      ) : (
-        <Input id={id} className={`${error ? 'border-red-500' : ''}`} {...props} />
-      )}
-    </div>
-    {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    <Input id={id} className={`${error ? 'border-red-500' : ''}`} {...register(name)} {...props} />
+    {error && <p className="text-sm text-red-500 mt-1">{error.message}</p>}
   </div>
 );
+
+const MaskedField = ({ id, label, error, control, name, ...props }) => {
+  const [mask, setMask] = useState('(99) 9999-9999');
+
+  const handleTelefoneChange = (e, onChange) => {
+    const unmaskedValue = e.target.value.replace(/[^\d]/g, '');
+    if (unmaskedValue.length > 10) {
+      setMask('(99) 99999-9999');
+    } else {
+      setMask('(99) 9999-9999');
+    }
+    onChange(e);
+  };
+
+  return (
+    <div>
+      <Label htmlFor={id}>{label}</Label>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <InputMask
+            mask={mask}
+            value={field.value}
+            onChange={(e) => handleTelefoneChange(e, field.onChange)}
+            onBlur={field.onBlur}
+          >
+            {(inputProps) => <Input id={id} {...inputProps} className={`${error ? 'border-red-500' : ''}`} {...props} />}
+          </InputMask>
+        )}
+      />
+      {error && <p className="text-sm text-red-500 mt-1">{error.message}</p>}
+    </div>
+  );
+};

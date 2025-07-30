@@ -17,7 +17,7 @@ export function useIntimacoes() {
     setLoading(true);
     const { data, error } = await supabase
       .from('intimacoes')
-      .select('*')
+      .select('id, intimadoNome, status, documento, telefone, dataAgendada, horaAgendada, tipoProcedimento, numeroProcedimento, motivo, criadoEm, primeiraDisponibilidade')
       .eq('userId', user.id)
       .order('criadoEm', { ascending: false });
 
@@ -91,9 +91,10 @@ export function useIntimacoes() {
     setLoading(true);
     const { data, error } = await supabase
       .from('intimacoes')
-      .select('*')
+      .select('id, intimadoNome, horaAgendada, documento, telefone, tipoProcedimento, numeroProcedimento')
       .eq('userId', user.id)
       .eq('dataAgendada', date)
+      .eq('status', 'agendada')
       .order('horaAgendada', { ascending: true });
 
     if (error) {

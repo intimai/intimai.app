@@ -1,11 +1,10 @@
 /* Define custom properties for the calendar component inside .rdp-root */
 .rdp-root {
-  --rdp-cell-size: 40px;
-  margin: 1em;
+  width: 100%; /* Faz o calendário ocupar toda a largura do container */
 
   /* Cores do calendário */
   --rdp-accent-color: #8B5CF6; /* Cor roxa para elementos de destaque */
-  --rdp-today-color: #8B5CF6; /* Cor roxa para o dia de hoje */
+  --rdp-background-color: #F3E8FF; /* Cor de fundo para o dia selecionado */
   --rdp-background-color: var(--background);
   --rdp-color: hsl(var(--foreground));
   --rdp-button-color: hsl(var(--foreground));

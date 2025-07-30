@@ -15,6 +15,7 @@ import { GlossarioPage } from '@/components/dashboard/GlossarioPage';
 import { OrientacoesPage } from '@/components/dashboard/OrientacoesPage';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { UpdatePasswordPage } from '@/components/auth/UpdatePasswordPage';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
 
 const logoUrl = "https://storage.googleapis.com/hostinger-horizons-assets-prod/ff2104f3-6482-49a4-9fec-6fd1d70a2204/c4a62877bf18a6bbdd6ac8a9a25455d7.png";
 
@@ -129,6 +130,7 @@ const LayoutRoutes = () => (
       <Route path="/orientacoes" element={<OrientacoesPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/suporte" element={<SuportePage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     </Routes>
   </Layout>
 );

@@ -37,6 +37,9 @@ export function Layout({ children }) {
             {children}
           </motion.div>
         </main>
+        <footer className="text-center p-4 text-xs text-muted-foreground">
+          powered by Aurios AI
+        </footer>
       </div>
     </div>
   );
