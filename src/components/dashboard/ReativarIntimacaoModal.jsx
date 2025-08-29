@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHookFormMask } from "use-mask-input";
 
-export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
+export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuccess }) => {
   const dateInputRef = useRef(null);
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,13 +34,36 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
     setValue,
   } = useForm({
     resolver: zodResolver(intimacaoSchema),
+    defaultValues: {
+        nome_completo: intimacao?.intimadoNome || "",
+        documento: intimacao?.documento || "",
+        telefone: intimacao?.telefone || "",
+        tipo_procedimento: intimacao?.tipoProcedimento || "",
+        numero_procedimento: intimacao?.numeroProcedimento || "",
+        data: '',
+        periodo: ''
+    }
   });
+
+  useEffect(() => {
+    if (intimacao) {
+        reset({
+            nome_completo: intimacao.intimadoNome,
+            documento: intimacao.documento,
+            telefone: intimacao.telefone,
+            tipo_procedimento: intimacao.tipoProcedimento,
+            numero_procedimento: intimacao.numeroProcedimento,
+        });
+    }
+  }, [intimacao, reset]);
+
+
   const registerWithMask = useHookFormMask(register);
   const { ref: dataRegisterRef, ...dataRegisterProps } = register("data");
 
   const onSubmit = async (formData) => {
     if (!user) {
-      toast.error("Você precisa estar logado para criar uma intimação.");
+      toast.error("Você precisa estar logado para reativar uma intimação.");
       return;
     }
 
@@ -63,18 +86,29 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
         userId: user.id,
         delegadoResponsavel: user.delegadoResponsavel,
         delegaciaId: user.delegaciaId,
+        reativada: false,
       };
 
-      const { error } = await supabase.from("intimacoes").insert(submissionData);
+      const { error: insertError } = await supabase.from("intimacoes").insert(submissionData);
 
-      if (error) {
-        console.error("Erro detalhado ao criar intimação:", error);
-        throw error;
+      if (insertError) {
+        console.error("Erro detalhado ao reativar intimação:", insertError);
+        throw insertError;
+      }
+
+      const { error: updateError } = await supabase
+        .from("intimacoes")
+        .update({ reativada: true })
+        .eq("id", intimacao.id);
+
+      if (updateError) {
+        console.error("Erro ao atualizar a intimação original:", updateError);
+        throw updateError;
       }
 
       setSubmissionStatus("success");
     } catch (error) {
-      toast.error(`Falha ao criar intimação: ${error.message}`);
+      toast.error(`Falha ao reativar intimação: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -89,6 +123,9 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
     reset();
     setSubmissionStatus("form");
     onClose();
+    if (submissionStatus === 'success' && onSuccess) {
+      onSuccess();
+    }
   };
 
   if (!isOpen) return null;
@@ -110,11 +147,18 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
         className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <Card className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-purple-600">Nova Intimação</CardTitle>
-            <Button variant="ghost" size="icon" onClick={handleClose}>
-              <X className="h-4 w-4" />
-            </Button>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-green-600">Reativar Intimação</CardTitle>
+                <p className="text-red-500 text-xs mt-4">
+                  Atenção: Confirme os dados, especialmente o telefone, e escolha uma nova data/período.
+                </p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleClose} className="-mt-2 -mr-2">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {submissionStatus === "form" ? (
@@ -122,24 +166,11 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="nome_completo">Nome Completo</Label>
-                    <Input
-                      id="nome_completo"
-                      {...register("nome_completo")}
-                    />
-                    {errors.nome_completo && (
-                      <p className="text-red-500 text-xs">
-                        {errors.nome_completo.message}
-                      </p>
-                    )}
+                    <Input id="nome_completo" {...register("nome_completo")} disabled />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="documento">Documento (CPF/RG)</Label>
-                    <Input id="documento" {...register("documento")} />
-                    {errors.documento && (
-                      <p className="text-red-500 text-xs">
-                        {errors.documento.message}
-                      </p>
-                    )}
+                    <Label htmlFor="documento">Documento (CPF/CNPJ)</Label>
+                    <Input id="documento" {...register("documento")} disabled />
                   </div>
                 </div>
 
@@ -147,8 +178,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
                   <Label htmlFor="telefone">Telefone</Label>
                   <Input
                     id="telefone"
-                    placeholder="(XX) XXXXX-XXXX"
-                    {...registerWithMask("telefone", "(99) 99999-9999")}
+                    {...registerWithMask("telefone", ["(99) 99999-9999", "(99) 9999-9999"])}
                   />
                   {errors.telefone && (
                     <p className="text-red-500 text-xs">
@@ -159,41 +189,21 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="tipo_procedimento">
-                      Tipo de Procedimento
-                    </Label>
-                    <Input
-                      id="tipo_procedimento"
-                      {...register("tipo_procedimento")}
-                    />
-                    {errors.tipo_procedimento && (
-                      <p className="text-red-500 text-xs">
-                        {errors.tipo_procedimento.message}
-                      </p>
-                    )}
+                    <Label htmlFor="tipo_procedimento">Tipo de Procedimento</Label>
+                    <Input id="tipo_procedimento" {...register("tipo_procedimento")} disabled />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="numero_procedimento">
-                      Número do Procedimento
-                    </Label>
-                    <Input
-                      id="numero_procedimento"
-                      {...register("numero_procedimento")}
-                    />
-                    {errors.numero_procedimento && (
-                      <p className="text-red-500 text-xs">
-                        {errors.numero_procedimento.message}
-                      </p>
-                    )}
+                    <Label htmlFor="numero_procedimento">Número do Procedimento</Label>
+                    <Input id="numero_procedimento" {...register("numero_procedimento")} disabled />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="data">Data</Label>
+                    <Label htmlFor="data">Nova Data de Disponibilidade</Label>
                     <div className="relative flex items-center">
                       <CalendarIcon
-                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-600 cursor-pointer"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-600 cursor-pointer"
                         onClick={() => dateInputRef.current?.showPicker()}
                       />
                       <Input
@@ -247,10 +257,10 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
                   >
                     <Send className="h-4 w-4 mr-2" />
-                    {isSubmitting ? "Gerando..." : "Gerar Intimação"}
+                    {isSubmitting ? "Reativando..." : "Reativar Intimação"}
                   </Button>
                 </div>
               </form>
@@ -268,10 +278,10 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
                   <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
                 </motion.div>
                 <h3 className="text-2xl font-bold" style={{ color: '#D1D5DB' }}>
-                  Intimação Registrada com Sucesso!
+                  Intimação Reativada com Sucesso!
                 </h3>
                 <p className="text-gray-600">
-                  A intimação foi enviada e o intimado será notificado em breve.
+                  Uma nova intimação foi criada com o status "pendente".
                 </p>
                 <div className="flex justify-center space-x-4 pt-4">
                   <Button
@@ -280,13 +290,6 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
                     onClick={handleClose}
                   >
                     Encerrar
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleContinue}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    Registrar Nova Intimação
                   </Button>
                 </div>
               </div>

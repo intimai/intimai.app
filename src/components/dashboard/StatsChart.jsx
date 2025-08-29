@@ -1,5 +1,14 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import TooltipContent from '../ui/TooltipContent';
+
+const ChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return <TooltipContent text={`${data.name}: ${data.value}`} />;
+  }
+  return null;
+};
 
 const StatsChart = ({ data }) => {
   const chartData = data.filter(item => item.name !== 'Total');
@@ -15,7 +24,7 @@ const StatsChart = ({ data }) => {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={280}>
       <PieChart>
         <Pie
           data={chartData}
@@ -33,16 +42,7 @@ const StatsChart = ({ data }) => {
             <Cell key={`cell-${index}`} fill={entry.color || '#cccccc'} />
           ))}
         </Pie>
-        <Legend 
-          layout="horizontal" 
-          verticalAlign="bottom" 
-          align="center" 
-          formatter={(value, entry) => (
-            <span className="text-gray-600 text-sm">
-              {value} ({entry.payload.value})
-            </span>
-          )} 
-        />
+        <Tooltip content={<ChartTooltip />} cursor={{ fill: 'transparent' }} isAnimationActive={false} />
       </PieChart>
     </ResponsiveContainer>
   );

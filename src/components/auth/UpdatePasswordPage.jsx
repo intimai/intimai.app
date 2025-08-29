@@ -47,7 +47,7 @@ export function UpdatePasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background max-w-md mx-auto">
+    <div className="flex items-center justify-center min-h-screen bg-background w-full max-w-[448px] mx-auto">
         <Card className="w-full card-hover glass-effect border-border">
           <CardHeader className="text-center">
             <CardTitle className="active-link-gradient">Redefinir Senha</CardTitle>
@@ -115,6 +115,7 @@ export function UpdatePasswordPage() {
             </form>
           </CardContent>
         </Card>
+        <p className="text-center text-xs text-muted-foreground mt-4">powered by Aurios AI</p>
     </div>
   );
 }

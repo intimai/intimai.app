@@ -1,83 +1,125 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, Phone, User, X, MessageCircle, ClipboardList, Hash, HelpCircle } from 'lucide-react';
-import ExpansionButton from '../ui/ExpansionButton';
+import { Calendar, Clock, Phone, X, MessageCircle, Hash, HelpCircle, FileText, RefreshCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import StatusLabel from '../ui/StatusLabel';
-
+import CollapsibleCard from '../ui/CollapsibleCard';
+import InfoItem from '../ui/InfoItem';
 import { Button } from '@/components/ui/button';
-import { useIntimacoes } from '@/hooks/useIntimacoes';
-import { toast } from '@/components/ui/use-toast';
 import ConfirmationModal from '../ui/ConfirmationModal';
-import { formatDate, formatTime, formatDateTime } from '@/lib/utils';
+import { ReativarIntimacaoModal } from './ReativarIntimacaoModal';
+import { formatDate, formatTime, formatDateTime } from "@/lib/utils";
 
-export function IntimacaoCard({ intimacao }) {
-  const [expanded, setExpanded] = useState(false);
+export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { cancelIntimacao } = useIntimacoes();
+  const [isReativarModalOpen, setIsReativarModalOpen] = useState(false);
 
-  const handleOpenModal = (e) => {
-    e.stopPropagation();
+  const handleCancelClick = () => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmCancel = async () => {
-    try {
-      await cancelIntimacao(intimacao.id);
-      toast({ title: "Solicitação de cancelamento enviada." });
-      setIsModalOpen(false);
-    } catch (error) {
-      toast({ title: "Erro ao solicitar cancelamento", variant: "destructive" });
-    }
+  const handleConfirmCancel = () => {
+    onCancel(intimacao.id);
+    setIsModalOpen(false);
   };
+
+  const handleReativarClick = () => {
+    setIsReativarModalOpen(true);
+  };
+
+  const renderActionsContent = () => {
+    const status = intimacao.status;
+
+    if (intimacao.cancelamentoEmAndamento) {
+      return (
+        <span className="text-xs text-gray-300 italic">
+          Em cancelamento...
+        </span>
+      );
+    }
+
+    if (status === "cancelada" || status === "ausente") {
+      const isReativada = intimacao.reativada === true || String(intimacao.reativada).toLowerCase() === 'true';
+    if (isReativada) {
+      return (
+        <span className="text-xs text-gray-300 italic">
+          Intimação Reativada
+        </span>
+      );
+    }
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-md p-1 -m-1"
+          onClick={handleReativarClick}
+        >
+          <RefreshCcw style={{ color: '#22C55E' }} className="w-4 h-4" />
+          Reativar
+        </Button>
+      );
+    }
+
+    const cancellableStatus = ["pendente", "entregue", "ativa", "agendada"];
+    if (cancellableStatus.includes(status)) {
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-md p-1 -m-1"
+          onClick={handleCancelClick}
+        >
+          <X style={{ color: '#C12F71' }} className="w-4 h-4" />
+          Cancelar
+        </Button>
+      );
+    }
+
+    return null;
+  };
+
+  const renderHeader = () => (
+    <div className="w-full">
+      <div className="flex items-center gap-3 mb-1">
+        <h3 className="text-base font-normal text-white truncate">{intimacao.intimadoNome}</h3>
+        <StatusLabel status={intimacao.status} />
+      </div>
+      <div className="flex justify-between items-center mt-1">
+        <p className="text-xs text-gray-400">Doc: {intimacao.documento}</p>
+        {renderActionsContent()}
+      </div>
+    </div>
+  );
+
+  const renderActions = () => null;
 
   return (
     <>
-      <div className="py-4 px-4 transition-all duration-200 hover:border-b-2 hover:border-gray-700 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-1">
-            <h3 className="text-base font-normal text-white truncate">{intimacao.intimadoNome}</h3>
-            <StatusLabel status={intimacao.status} />
-
-          </div>
-          <p className="text-xs text-gray-400">Doc: {intimacao.documento}</p>
+      <CollapsibleCard
+        header={renderHeader()}
+        actions={renderActions()}
+        className="py-4 px-4 transition-all duration-200 hover:border-b-2 hover:border-gray-700"
+      >
+        <div className="grid grid-cols-3 gap-x-4 gap-y-6">
+          <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} />
+          <InfoItem icon={<Calendar />} label="Data Agendada" value={formatDate(intimacao.dataAgendada)} />
+          <InfoItem icon={<Clock />} label="Hora Agendada" value={formatTime(intimacao.horaAgendada)} />
+          <InfoItem icon={<FileText />} label="Tipo de Procedimento" value={intimacao.tipoProcedimento} />
+          <InfoItem icon={<Hash />} label="Nº Procedimento" value={intimacao.numeroProcedimento} />
+          <InfoItem icon={<HelpCircle />} label="Motivo" value={intimacao.motivo} />
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button variant="ghost" onClick={handleOpenModal} className="h-auto p-0 flex items-center">
-            <X className="w-4 h-4 text-chart-canceladas mr-1" />
-            <span className="text-sm text-muted-foreground">Cancelar</span>
-          </Button>
-          <ExpansionButton isExpanded={expanded} onClick={() => setExpanded(!expanded)} />
+        <div className="pt-3 mt-3 border-t border-white/20">
+          <h4 className="text-sm font-medium flex items-center gap-2 mb-2 text-gray-500">
+            <MessageCircle className="w-4 h-4" />
+            Histórico
+          </h4>
+          <div className="text-xs text-gray-500">
+            <span>Criado em: {formatDateTime(intimacao.criadoEm)}</span>
+            <br />
+            <span>Sugestão de agenda: {formatDate(intimacao.primeiraDisponibilidade)}</span>
+          </div>
         </div>
-      </div>
-      
-      {expanded && (
-        <motion.div 
-          initial={{ opacity: 0, height: 0 }} 
-          animate={{ opacity: 1, height: 'auto' }} 
-          exit={{ opacity: 0, height: 0 }}
-          className="mt-4 pt-4 border-t border-gray-200"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <InfoItem icon={<Phone />} label={intimacao.telefone} />
-            <InfoItem icon={<Calendar />} label={formatDate(intimacao.dataAgendada)} />
-            <InfoItem icon={<Clock />} label={formatTime(intimacao.horaAgendada)} />
-            <InfoItem icon={<ClipboardList />} label={intimacao.tipoProcedimento || 'N/A'} />
-            <InfoItem icon={<Hash />} label={intimacao.numeroProcedimento || 'N/A'} />
-            <InfoItem icon={<HelpCircle />} label={intimacao.motivo || 'N/A'} />
-          </div>
-          <div className="pt-3 border-t border-gray-100">
-            <h4 className="text-sm font-medium flex items-center gap-2 mb-2 text-gray-700">
-              <MessageCircle className="w-4 h-4" />Histórico
-            </h4>
-            <div className="text-xs text-gray-500">Criado em: {formatDateTime(intimacao.criadoEm)}</div>
-            <div className="text-xs text-gray-500">Sugestão de agenda: {formatDate(intimacao.primeiraDisponibilidade)}</div>
-          </div>
-        </motion.div>
-      )}
-    </div>
-    <ConfirmationModal
+      </CollapsibleCard>
+      <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmCancel}
@@ -86,16 +128,12 @@ export function IntimacaoCard({ intimacao }) {
         <p>Você tem certeza que deseja solicitar o cancelamento desta intimação?</p>
         <p className="text-sm text-gray-500 mt-2">Esta ação não poderá ser desfeita.</p>
       </ConfirmationModal>
+      <ReativarIntimacaoModal
+        open={isReativarModalOpen}
+        onClose={() => setIsReativarModalOpen(false)}
+        intimacao={intimacao}
+        onSuccess={onReativar}
+      />
     </>
   );
 }
-
-const InfoItem = ({ icon, label, value, isBlock }) => (
-  <div className={`flex items-start gap-2 ${isBlock ? 'flex-col' : ''}`}>
-    <div className="text-gray-400 mt-0.5 flex-shrink-0">{React.cloneElement(icon, { className: 'w-3 h-3' })}</div>
-    <div className="min-w-0">
-      <span className={`text-xs text-gray-300 ${isBlock ? 'font-medium' : ''}`}>{label}</span>
-      {value && <p className="text-xs text-gray-400">{value}</p>}
-    </div>
-  </div>
-);

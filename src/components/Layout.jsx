@@ -1,12 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 
 export function Layout({ children }) {
-  const { user, signOut } = useAuth();
+    const { user, signOut, loading } = useAuth();
+    const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    console.log('Attempting to sign out for user:', user);
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+      } else {
+        console.log('Successfully signed out');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Caught an exception during sign out:', error);
+    }
+  };
   return (
     <div className="min-h-screen flex bg-background text-foreground">
       <Sidebar />
@@ -21,7 +38,7 @@ export function Layout({ children }) {
                     <span className="text-sm font-semibold text-foreground truncate">{user.user_metadata.nome}</span>
                 </div>
             )}
-            <Button variant="ghost" onClick={signOut} className="text-muted-foreground hover:text-foreground">
+                        <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground" disabled={loading}>
               <LogOut className="w-5 h-5 mr-2" />
               Sair
             </Button>

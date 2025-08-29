@@ -8,16 +8,48 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const fetchSessionAndProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      
+      if (session) {
+        const { data: profile, error } = await supabase
+          .from('usuarios')
+          .select('delegadoResponsavel, delegaciaId')
+          .eq('userId', session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Erro ao buscar perfil:", error);
+        }
+
+        const newUser = { ...session.user, ...profile };
+        setUser(newUser);
+      } else {
+        setUser(null);
+      }
+      
       setLoading(false);
     };
 
-    fetchSession();
+    fetchSessionAndProfile();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const { data: profile, error } = await supabase
+          .from('usuarios')
+          .select('delegadoResponsavel, delegaciaId')
+          .eq('userId', session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Erro ao buscar perfil no onAuthStateChange:", error);
+        }
+        
+        const newUser = { ...session.user, ...profile };
+        setUser(newUser);
+      } else {
+        setUser(null);
+      }
     });
 
     return () => {

@@ -208,7 +208,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="w-full max-w-[448px] mx-auto">
       <Card className="card-hover glass-effect border-border">
         <CardHeader>
           <CardTitle className="text-center active-link-gradient">{steps[currentStep - 1].title}</CardTitle>
@@ -248,6 +248,7 @@ export function RegisterForm() {
             </Link>
           </p>
       </div>
+      <p className="text-center text-xs text-muted-foreground mt-4">powered by Aurios AI</p>
     </div>
   );
 }

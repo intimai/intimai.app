@@ -5,15 +5,38 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
-import { CreateIntimacaoModal } from './CreateIntimacaoModal';
-import { IntimacaoCard } from './IntimacaoCard';
+import { CreateIntimacaoModal } from '../components/dashboard/CreateIntimacaoModal';
+import { IntimacaoCard } from '../components/dashboard/IntimacaoCard';
+import { chartColors } from '@/config/chartColors';
+import { toast } from '@/components/ui/use-toast';
 
 
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filter, setFilter] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
-  const { intimacoes, loading } = useIntimacoes();
+  const { intimacoes, loading, fetchIntimacoes, cancelIntimacao } = useIntimacoes();
+
+  const handleCancelIntimacao = async (id) => {
+    try {
+      await cancelIntimacao(id);
+      toast({ title: "Solicitação de cancelamento enviada." });
+      fetchIntimacoes();
+    } catch (error) {
+      toast({ title: "Erro ao solicitar cancelamento", variant: "destructive" });
+    }
+  };
+
+  const filterColorClasses = {
+    pendentes: { text: 'text-chart-pendentes', border: 'border-chart-pendentes' },
+    entregues: { text: 'text-chart-entregues', border: 'border-chart-entregues' },
+    ativas: { text: 'text-chart-ativas', border: 'border-chart-ativas' },
+    agendadas: { text: 'text-chart-agendadas', border: 'border-chart-agendadas' },
+    recusadas: { text: 'text-chart-recusadas', border: 'border-chart-recusadas' },
+    canceladas: { text: 'text-chart-canceladas', border: 'border-chart-canceladas' },
+    finalizadas: { text: 'text-chart-finalizadas', border: 'border-chart-finalizadas' },
+    ausentes: { text: 'text-chart-ausentes', border: 'border-chart-ausentes' },
+  };
 
   const statusMap = {
     pendentes: 'pendente',
@@ -22,6 +45,8 @@ export function IntimacoesPage() {
     agendadas: 'agendada',
     recusadas: 'recusada',
     canceladas: 'cancelada',
+    finalizadas: 'finalizada',
+    ausentes: 'ausente',
   };
 
   const filteredIntimacoes = useMemo(() => {
@@ -83,29 +108,16 @@ export function IntimacoesPage() {
                     { key: 'agendadas', label: 'Agendadas' },
                     { key: 'recusadas', label: 'Recusadas' },
                     { key: 'canceladas', label: 'Canceladas' },
+                    { key: 'finalizadas', label: 'Finalizadas' },
+                    { key: 'ausentes', label: 'Ausentes' },
                   ].map(f => {
-                    const textColors = {
-                      todas: 'text-white',
-                      pendentes: 'text-chart-pendentes',
-                      entregues: 'text-chart-entregues',
-                      ativas: 'text-chart-ativas',
-                      agendadas: 'text-chart-agendadas',
-                      recusadas: 'text-chart-recusadas',
-                      canceladas: 'text-chart-canceladas',
-                    };
+                    const isSelected = filter === f.key;
+                    const colorClasses = filterColorClasses[f.key];
 
-                    const borderColors = {
-                      todas: 'border-white',
-                      pendentes: 'border-chart-pendentes',
-                      entregues: 'border-chart-entregues',
-                      ativas: 'border-chart-ativas',
-                      agendadas: 'border-chart-agendadas',
-                      recusadas: 'border-chart-recusadas',
-                      canceladas: 'border-chart-canceladas',
-                    };
-
-                    const textColorClass = textColors[f.key] || 'text-white';
-                    const borderColorClass = filter === f.key ? borderColors[f.key] : 'border-transparent';
+                    const textColorClass = colorClasses ? colorClasses.text : 'text-white';
+                    const borderColorClass = isSelected 
+                      ? (colorClasses ? colorClasses.border : 'border-white')
+                      : 'border-transparent';
 
                     return (
                       <button
@@ -114,7 +126,7 @@ export function IntimacoesPage() {
                         className={`
                           py-2 px-1 text-sm font-medium transition-all duration-200
                           border-b-2 hover:border-gray-300 dark:hover:border-gray-600
-                          ${filter === f.key ? 'font-bold' : ''} ${textColorClass} ${borderColorClass}
+                          ${isSelected ? 'font-bold' : ''} ${textColorClass} ${borderColorClass}
                         `}
                       >
                         {f.label}
@@ -136,7 +148,7 @@ export function IntimacoesPage() {
                 <div className="divide-y divide-gray-100">
                     {filteredIntimacoes.map((intimacao, index) => (
                     <motion.div key={intimacao.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-                        <IntimacaoCard intimacao={intimacao} />
+                        <IntimacaoCard intimacao={intimacao} onCancel={handleCancelIntimacao} onReativar={fetchIntimacoes} />
                     </motion.div>
                     ))}
                 </div>

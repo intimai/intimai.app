@@ -54,7 +54,7 @@ export function Sidebar() {
 
       <div className="mt-auto flex flex-col space-y-2 pt-4 border-t border-border">
           <NavLink
-            to="/privacy-policy"
+            to="/politica-de-privacidade"
             className={({ isActive }) =>
               `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${
                 isActive

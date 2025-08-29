@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { AgendaCalendar } from './AgendaCalendar';
-import { AgendaDoDia } from './AgendaDoDia';
+import { AgendaCalendar } from '@/components/dashboard/AgendaCalendar';
+import AgendaCard from '@/components/dashboard/AgendaCard';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,19 +10,23 @@ export function AgendaPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { intimacoes, agendamentosDoDia, fetchAgendamentos } = useIntimacoes();
 
-  useEffect(() => {
+  const refetchAgendamentos = useCallback(() => {
     if (selectedDate) {
       const formattedDate = format(selectedDate, 'yyyy-MM-dd');
       fetchAgendamentos(formattedDate);
     }
   }, [selectedDate, fetchAgendamentos]);
 
+  useEffect(() => {
+    refetchAgendamentos();
+  }, [refetchAgendamentos]);
+
   return (
     <div className="space-y-6">
       <Card className="w-full">
         <CardContent className="p-4">
           <h2 className="text-2xl font-bold active-link-gradient italic">Agenda</h2>
-          <p className="text-gray-600 text-sm">Visualize e gerencie seus agendamentos.</p>
+          <p className="page-subtitle">Visualize e gerencie seus agendamentos.</p>
         </CardContent>
       </Card>
 
@@ -46,7 +50,7 @@ export function AgendaPage() {
             <div className="lg:col-span-3">
               <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Agendamentos do Dia</h2>
               <div className="max-h-[400px] overflow-y-auto pr-2">
-                <AgendaDoDia selectedDate={selectedDate} agendamentos={agendamentosDoDia} />
+                <AgendaCard selectedDate={selectedDate} agendamentos={agendamentosDoDia} refetch={refetchAgendamentos} />
               </div>
             </div>
           </div>

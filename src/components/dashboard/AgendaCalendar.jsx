@@ -12,7 +12,7 @@ export function AgendaCalendar({ selectedDate, setSelectedDate, intimacoes }) {
 
   return (
     <>
-      <div className="w-[280px] h-[280px]">
+      <div className="w-[280px]">
         <DayPicker
             mode="single"
             selected={selectedDate}

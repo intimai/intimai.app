@@ -40,7 +40,7 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="w-full max-w-[448px] mx-auto">
       <Card className="card-hover glass-effect border-border">
         <CardHeader className="text-center">
           <CardTitle className="active-link-gradient">Recuperar Senha</CardTitle>
@@ -95,6 +95,7 @@ export function ForgotPasswordForm() {
           </div>
         </CardContent>
       </Card>
+      <p className="text-center text-xs text-muted-foreground mt-4">powered by Aurios AI</p>
     </div>
   );
 }

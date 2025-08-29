@@ -17,7 +17,7 @@ export function useIntimacoes() {
     setLoading(true);
     const { data, error } = await supabase
       .from('intimacoes')
-      .select('id, intimadoNome, status, documento, telefone, dataAgendada, horaAgendada, tipoProcedimento, numeroProcedimento, motivo, criadoEm, primeiraDisponibilidade')
+      .select('id, intimadoNome, status, documento, telefone, dataAgendada, horaAgendada, tipoProcedimento, numeroProcedimento, motivo, criadoEm, primeiraDisponibilidade, cancelamentoEmAndamento, reativada')
       .eq('userId', user.id)
       .order('criadoEm', { ascending: false });
 
@@ -85,16 +85,38 @@ export function useIntimacoes() {
     return data;
   };
 
+  const marcarComoAusente = async (intimacaoId) => {
+    const { data, error } = await supabase
+      .from('intimacoes')
+      .update({ status: 'ausente' })
+      .eq('id', intimacaoId)
+      .select();
+
+    if (error) throw error;
+    return data;
+  };
+
+  const marcarComoCompareceu = async (intimacaoId) => {
+    const { data, error } = await supabase
+      .from('intimacoes')
+      .update({ status: 'finalizada' })
+      .eq('id', intimacaoId)
+      .select();
+
+    if (error) throw error;
+    return data;
+  };
+
   const fetchAgendamentos = useCallback(async (date) => {
     if (!user) return;
 
     setLoading(true);
     const { data, error } = await supabase
       .from('intimacoes')
-      .select('id, intimadoNome, horaAgendada, documento, telefone, tipoProcedimento, numeroProcedimento')
+      .select('id, intimadoNome, horaAgendada, documento, telefone, tipoProcedimento, numeroProcedimento, status, cancelamentoEmAndamento')
       .eq('userId', user.id)
       .eq('dataAgendada', date)
-      .eq('status', 'agendada')
+      .in('status', ['agendada', 'finalizada', 'ausente'])
       .order('horaAgendada', { ascending: true });
 
     if (error) {
@@ -110,8 +132,11 @@ export function useIntimacoes() {
     intimacoes,
     agendamentosDoDia,
     loading,
+    fetchIntimacoes,
     fetchAgendamentos,
     createIntimacao,
     cancelIntimacao,
+    marcarComoAusente,
+    marcarComoCompareceu,
   };
 }

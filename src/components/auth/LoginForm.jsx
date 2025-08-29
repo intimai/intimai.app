@@ -44,7 +44,7 @@ export function LoginForm() {
 
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="w-full max-w-[448px] mx-auto">
       <Card className="card-hover glass-effect border-border">
         <CardHeader className="text-center">
           <CardTitle className="active-link-gradient">Entrar</CardTitle>
@@ -134,6 +134,7 @@ export function LoginForm() {
           </div>
         </CardContent>
       </Card>
+      <p className="text-center text-xs text-muted-foreground mt-4">powered by Aurios AI</p>
     </div>
   );
 }

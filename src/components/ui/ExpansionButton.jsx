@@ -5,7 +5,7 @@ const ExpansionButton = ({ isExpanded, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="p-1 rounded-md hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      className="p-1 rounded-md hover:bg-muted/50 focus:outline-none"
       aria-expanded={isExpanded}
     >
       {isExpanded ? (

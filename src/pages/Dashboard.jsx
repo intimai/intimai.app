@@ -4,8 +4,8 @@ import { Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
-import { CreateIntimacaoModal } from './CreateIntimacaoModal';
-import StatsChart from './StatsChart';
+import { CreateIntimacaoModal } from '../components/dashboard/CreateIntimacaoModal';
+import StatsChart from '../components/dashboard/StatsChart';
 import { chartColors } from '@/config/chartColors';
 
 
@@ -23,6 +23,8 @@ export function Dashboard() {
       agendadas: 0,
       recusadas: 0,
       canceladas: 0,
+      finalizadas: 0,
+      ausentes: 0,
     };
 
     // Mapeia o status da intimação (singular) para a chave de contagem (plural)
@@ -33,6 +35,8 @@ export function Dashboard() {
       agendada: 'agendadas',
       recusada: 'recusadas',
       cancelada: 'canceladas',
+      finalizada: 'finalizadas',
+      ausente: 'ausentes',
     };
 
     intimacoes.forEach(intimacao => {
@@ -49,6 +53,8 @@ export function Dashboard() {
       { name: 'Agendadas', value: counts.agendadas, color: chartColors.agendadas },
       { name: 'Recusadas', value: counts.recusadas, color: chartColors.recusadas },
       { name: 'Canceladas', value: counts.canceladas, color: chartColors.canceladas },
+      { name: 'Finalizadas', value: counts.finalizadas, color: chartColors.finalizadas },
+      { name: 'Ausentes', value: counts.ausentes, color: chartColors.ausentes },
     ].filter(item => item.value > 0);
 
     return data;
