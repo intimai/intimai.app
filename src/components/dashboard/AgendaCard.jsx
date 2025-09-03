@@ -124,7 +124,7 @@ const AgendaItem = ({ intimacao, refetch }) => {
   const renderActions = () => null;
 
   return (
-    <li className="bg-background p-4 rounded-lg shadow">
+    <li className="bg-card p-4 rounded-lg border shadow transition-transform duration-300 hover:-translate-y-1">
       <CollapsibleCard header={renderHeader()} actions={renderActions()}>
         <div className="grid grid-cols-2 gap-x-4 gap-y-4">
           <InfoItem icon={<FileText />} label="Documento" value={intimacao.documento} />

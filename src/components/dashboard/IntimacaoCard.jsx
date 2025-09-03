@@ -97,7 +97,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
       <CollapsibleCard
         header={renderHeader()}
         actions={renderActions()}
-        className="py-4 px-4 transition-all duration-200 hover:border-b-2 hover:border-gray-700"
+        className="bg-card p-4 rounded-lg border shadow transition-transform duration-300 hover:-translate-y-1"
       >
         <div className="grid grid-cols-3 gap-x-4 gap-y-6">
           <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} />

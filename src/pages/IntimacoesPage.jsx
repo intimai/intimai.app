@@ -158,7 +158,7 @@ export function IntimacoesPage() {
                     <Button onClick={() => setShowCreateModal(true)} className="btn-primary"><Plus className="w-4 h-4 mr-2" />Criar Intimação</Button>
                 </div>
                 ) : (
-                <div className="divide-y divide-gray-400 dark:divide-gray-700">
+                <div className="space-y-4">
                     {filteredIntimacoes.map((intimacao, index) => (
                     <motion.div key={intimacao.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                         <IntimacaoCard intimacao={intimacao} onCancel={handleCancelIntimacao} onReativar={fetchIntimacoes} />

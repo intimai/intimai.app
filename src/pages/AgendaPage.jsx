@@ -49,7 +49,7 @@ export function AgendaPage() {
             {/* Coluna dos Agendamentos do Dia */}
             <div className="lg:col-span-3">
               <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Agendamentos do Dia</h2>
-              <div className="max-h-[400px] overflow-y-auto pr-2">
+              <div className="max-h-[400px] overflow-y-auto pr-2 pt-2">
                 <AgendaCard selectedDate={selectedDate} agendamentos={agendamentosDoDia} refetch={refetchAgendamentos} />
               </div>
             </div>

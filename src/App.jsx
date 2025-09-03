@@ -16,7 +16,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import { AgendaPage } from './pages/AgendaPage';
 import { GlossarioPage } from './pages/GlossarioPage';
 import { IntimacoesPage } from './pages/IntimacoesPage';
-import { OrientacoesPage } from './pages/OrientacoesPage';
+import OrientacoesPage from './pages/OrientacoesPage';
 import { PerfilPage } from './pages/PerfilPage';
 import SuportePage from './pages/SuportePage';
 import PoliticaDePrivacidadePage from './pages/PoliticaDePrivacidadePage';
