@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { supabase } from '@/lib/customSupabaseClient';
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,7 @@ const SuportePage = () => {
     setMensagem('');
     setTelefone('');
   };
-// ... existing code ...
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -41,18 +42,42 @@ const SuportePage = () => {
       return;
     }
 
+    // 1. Salvar a solicitação no banco de dados
+    const dataToInsert = {
+      nome: user.nome || user.email,
+      email: user.email,
+      mensagem: `Assunto: ${assunto}\n\nMensagem: ${mensagem}`,
+      user_id: user.id,
+      delegadoResponsavel: user.delegadoResponsavel,
+      delegaciaNome: user.delegaciaNome,
+      delegaciaEndereco: user.delegaciaEndereco,
+      telefone: telefone,
+    };
+
+    const { error: dbError } = await supabase
+      .from('suporte')
+      .insert(dataToInsert);
+
+    if (dbError) {
+      console.error('Erro ao salvar no banco de dados:', dbError);
+      toast.error('Ocorreu um erro ao registrar sua solicitação. Tente novamente.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Disparar o webhook
     const supportData = {
       assunto: assunto,
       mensagem: mensagem,
       contatoWhatsApp: telefone,
     };
 
-    const { success, error } = await triggerWebhook('SUPORTE', supportData, user);
+    const { success, error: webhookError } = await triggerWebhook('SUPORTE', supportData, user);
 
     if (success) {
       setShowSuccessModal(true);
     } else {
-      toast.error(error || 'Erro ao enviar mensagem. Tente novamente mais tarde.');
+      toast.error(webhookError || 'Erro ao enviar mensagem. Tente novamente mais tarde.');
     }
 
     setIsSubmitting(false);

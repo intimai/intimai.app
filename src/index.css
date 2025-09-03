@@ -12,7 +12,7 @@
 }
 
 :root {
-  --background: 30 10% 96%;
+  --background: transparent;
   --foreground: 30 8% 10%;
   --card: 30 10% 92%;
   --card-foreground: 30 8% 10%;

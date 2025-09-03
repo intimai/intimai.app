@@ -27,7 +27,7 @@ const CollapsibleCard = ({ header, children, actions, className = '' }) => {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="mt-4 pt-4 border-t border-white/20"
+          className="mt-4 pt-4 border-t border-border"
           onClick={() => setExpanded(false)}
           style={{ cursor: 'pointer' }}
         >
