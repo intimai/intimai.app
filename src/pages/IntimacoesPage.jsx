@@ -10,7 +10,6 @@ import { IntimacaoCard } from '../components/dashboard/IntimacaoCard';
 import { chartColors } from '@/config/chartColors';
 import { toast } from '@/components/ui/use-toast';
 
-
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filter, setFilter] = useState('todas');
@@ -21,9 +20,9 @@ export function IntimacoesPage() {
     try {
       await cancelIntimacao(id);
       toast({ title: "Solicitação de cancelamento enviada." });
-      fetchIntimacoes();
+      fetchIntimacoes(); // Re-fetch para atualizar a UI
     } catch (error) {
-      toast({ title: "Erro ao solicitar cancelamento", variant: "destructive" });
+      toast({ title: "Erro ao solicitar cancelamento", description: error.message, variant: "destructive" });
     }
   };
 
@@ -114,10 +113,24 @@ export function IntimacoesPage() {
                     const isSelected = filter === f.key;
                     const colorClasses = filterColorClasses[f.key];
 
-                    const textColorClass = colorClasses ? colorClasses.text : 'text-white';
-                    const borderColorClass = isSelected 
-                      ? (colorClasses ? colorClasses.border : 'border-white')
-                      : 'border-transparent';
+                    let textColorClass;
+                    let borderColorClass;
+
+                    if (f.key === 'todas') {
+                      textColorClass = 'text-gray-900 dark:text-white';
+                    } else {
+                      textColorClass = colorClasses.text;
+                    }
+
+                    if (isSelected) {
+                      if (f.key === 'todas') {
+                        borderColorClass = 'border-gray-900 dark:border-white';
+                      } else {
+                        borderColorClass = colorClasses.border;
+                      }
+                    } else {
+                      borderColorClass = 'border-transparent';
+                    }
 
                     return (
                       <button
@@ -145,7 +158,7 @@ export function IntimacoesPage() {
                     <Button onClick={() => setShowCreateModal(true)} className="btn-primary"><Plus className="w-4 h-4 mr-2" />Criar Intimação</Button>
                 </div>
                 ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-400 dark:divide-gray-700">
                     {filteredIntimacoes.map((intimacao, index) => (
                     <motion.div key={intimacao.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                         <IntimacaoCard intimacao={intimacao} onCancel={handleCancelIntimacao} onReativar={fetchIntimacoes} />

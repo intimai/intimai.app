@@ -31,7 +31,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
 
     if (intimacao.cancelamentoEmAndamento) {
       return (
-        <span className="text-xs text-gray-300 italic">
+        <span className="text-xs text-muted-foreground italic">
           Em cancelamento...
         </span>
       );
@@ -41,7 +41,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
       const isReativada = intimacao.reativada === true || String(intimacao.reativada).toLowerCase() === 'true';
     if (isReativada) {
       return (
-        <span className="text-xs text-gray-300 italic">
+        <span className="text-xs text-muted-foreground italic">
           Intimação Reativada
         </span>
       );
@@ -50,7 +50,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         <Button
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-md p-1 -m-1"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-md p-1 -m-1"
           onClick={handleReativarClick}
         >
           <RefreshCcw style={{ color: '#22C55E' }} className="w-4 h-4" />
@@ -65,7 +65,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         <Button
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-md p-1 -m-1"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-md p-1 -m-1"
           onClick={handleCancelClick}
         >
           <X style={{ color: '#C12F71' }} className="w-4 h-4" />
@@ -80,7 +80,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
   const renderHeader = () => (
     <div className="w-full">
       <div className="flex items-center gap-3 mb-1">
-        <h3 className="text-base font-normal text-white truncate">{intimacao.intimadoNome}</h3>
+        <h3 className="text-base font-bold text-foreground truncate">{intimacao.intimadoNome}</h3>
         <StatusLabel status={intimacao.status} />
       </div>
       <div className="flex justify-between items-center mt-1">

@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Layout({ children }) {
     const { user, signOut, loading } = useAuth();
@@ -35,10 +36,11 @@ export function Layout({ children }) {
           <div className="flex items-center space-x-4">
             {user && (
                 <div className="flex items-center space-x-3">
-                    <span className="text-sm font-semibold text-foreground truncate">{user.user_metadata.nome}</span>
+                    <span className="text-sm font-semibold text-foreground truncate">{user.nome}</span>
                 </div>
             )}
-                        <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground" disabled={loading}>
+            <ThemeToggle />
+            <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground" disabled={loading}>
               <LogOut className="w-5 h-5 mr-2" />
               Sair
             </Button>

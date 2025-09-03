@@ -8,66 +8,37 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 
 export function PerfilPage() {
-  const { user, loading: authLoading } = useAuth();
-  const [perfil, setPerfil] = useState({ nome: '', delegadoResponsavel: '' });
-  const [delegacia, setDelegacia] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const [nome, setNome] = useState('');
+  const [delegadoResponsavel, setDelegadoResponsavel] = useState('');
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      setLoading(false);
-      return;
+    if (user) {
+      setNome(user.nome || '');
+      setDelegadoResponsavel(user.delegadoResponsavel || '');
     }
-
-    const fetchPerfilData = async () => {
-      setLoading(true);
-      const { data: perfilData, error: perfilError } = await supabase
-        .from('usuarios')
-        .select('*, delegacias(*)')
-        .eq('userId', user.id)
-        .single();
-
-      if (perfilError) {
-        toast({ variant: 'destructive', title: 'Erro ao carregar perfil.' });
-      } else if (perfilData) {
-        const newPerfilState = {
-          nome: perfilData.nome || '',
-          delegadoResponsavel: perfilData.delegadoResponsavel || ''
-        };
-        setPerfil(newPerfilState);
-        setDelegacia(perfilData.delegacias);
-      }
-      setLoading(false);
-    };
-
-    fetchPerfilData();
-  }, [user, authLoading]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPerfil(prev => ({ ...prev, [name]: value }));
-  };
+  }, [user]);
 
   const handleSave = async () => {
     if (!user) return;
 
-    const { error: updatePerfilError } = await supabase
+    const { error } = await supabase
       .from('usuarios')
       .update({ 
-        nome: perfil.nome,
-        delegadoResponsavel: perfil.delegadoResponsavel 
+        nome: nome,
+        delegadoResponsavel: delegadoResponsavel 
       })
       .eq('userId', user.id);
 
-    if (updatePerfilError) {
-      toast({ variant: 'destructive', title: 'Erro ao salvar delegado.', description: updatePerfilError.message });
+    if (error) {
+      toast({ variant: 'destructive', title: 'Erro ao salvar alterações.', description: error.message });
     } else {
       toast({ title: 'Perfil salvo com sucesso!' });
+      // Opcional: forçar a recarga dos dados do usuário no contexto para refletir as alterações imediatamente
     }
   };
 
-  if (loading || authLoading) {
+  if (loading) {
     return <div className="text-center p-4">Carregando...</div>;
   }
 
@@ -88,7 +59,7 @@ export function PerfilPage() {
         <CardContent className="space-y-4 pt-6">
           <div>
             <Label htmlFor="nome">Nome</Label>
-            <Input id="nome" name="nome" value={perfil.nome} onChange={handleInputChange} />
+            <Input id="nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <div>
             <Label>Email</Label>
@@ -96,15 +67,15 @@ export function PerfilPage() {
           </div>
           <div>
             <Label>Delegacia</Label>
-            <Input value={delegacia?.nome || 'N/A'} disabled />
+            <Input value={user.delegaciaNome || 'N/A'} disabled />
           </div>
           <div>
             <Label>Endereço da Delegacia</Label>
-            <Input value={delegacia?.endereco || 'N/A'} disabled />
+            <Input value={user.delegaciaEndereco || 'N/A'} disabled />
           </div>
           <div>
             <Label htmlFor="delegadoResponsavel">Delegado Responsável</Label>
-            <Input id="delegadoResponsavel" name="delegadoResponsavel" value={perfil.delegadoResponsavel} onChange={handleInputChange} />
+            <Input id="delegadoResponsavel" name="delegadoResponsavel" value={delegadoResponsavel} onChange={(e) => setDelegadoResponsavel(e.target.value)} />
           </div>
           <Button onClick={handleSave}>Salvar Alterações</Button>
         </CardContent>

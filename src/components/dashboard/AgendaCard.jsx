@@ -80,11 +80,11 @@ const AgendaItem = ({ intimacao, refetch }) => {
   const renderActionsContent = () => (
     <div className="flex items-center gap-4 justify-end" onClick={(e) => e.stopPropagation()}>
       {intimacao.cancelamentoEmAndamento ? (
-        <span className="text-xs text-gray-300 italic w-full text-right block">Em cancelamento...</span>
+        <span className="text-xs text-muted-foreground italic w-full text-right block">Em cancelamento...</span>
       ) : cancellableStatuses.includes(intimacao.status) ? (
         <button
           onClick={handleOpenCancelModal}
-          className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-md p-1 -m-1"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-md p-1 -m-1"
         >
           <X style={{ color: '#C12F71' }} className="w-4 h-4" />
           Cancelar
@@ -113,7 +113,7 @@ const AgendaItem = ({ intimacao, refetch }) => {
 
   const renderHeader = () => (
     <div className="w-full">
-        <p className="font-bold flex items-center text-white"><User className="w-4 h-4 mr-2 text-chart-agendadas" />{intimacao.intimadoNome}</p>
+        <p className="font-bold flex items-center text-foreground"><User className="w-4 h-4 mr-2 text-chart-agendadas" />{intimacao.intimadoNome}</p>
         <div className="flex items-center justify-between mt-1">
             <p className="text-sm text-muted-foreground flex items-center"><Clock className="w-4 h-4 mr-2 text-chart-entregues" />{formatTime(intimacao.horaAgendada)}</p>
             {renderActionsContent()}

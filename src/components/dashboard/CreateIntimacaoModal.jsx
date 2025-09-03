@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/SupabaseAuthContext";
 import { supabase } from "@/lib/customSupabaseClient";
 import { toast } from "sonner";
 import { X, Send, Calendar as CalendarIcon, CheckCircle, AlertTriangle } from "lucide-react";
+import { triggerWebhook } from "@/lib/webhookService";
 import { intimacaoSchema } from "@/schemas/intimacaoSchema";
 
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
         numeroProcedimento: formData.numero_procedimento,
         primeiraDisponibilidade,
         status: "pendente",
-        userId: user.id,
+        userId: user.userId,
         delegadoResponsavel: user.delegadoResponsavel,
         delegaciaId: user.delegaciaId,
       };
@@ -70,6 +71,15 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
       if (error) {
         console.error("Erro detalhado ao criar intimação:", error);
         throw error;
+      }
+
+      // Disparar o webhook
+      try {
+        await triggerWebhook("CRIACAO", submissionData, user);
+        toast.success("Intimação criada e webhook disparado com sucesso!");
+      } catch (webhookError) {
+        console.error("Erro ao enviar webhook:", webhookError);
+        toast.warning("A intimação foi criada, mas houve um problema ao notificar o sistema externo.");
       }
 
       setSubmissionStatus("success");

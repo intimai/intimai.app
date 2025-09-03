@@ -18,38 +18,42 @@ import { GlossarioPage } from './pages/GlossarioPage';
 import { IntimacoesPage } from './pages/IntimacoesPage';
 import { OrientacoesPage } from './pages/OrientacoesPage';
 import { PerfilPage } from './pages/PerfilPage';
-import { SuportePage } from './pages/SuportePage';
+import SuportePage from './pages/SuportePage';
 import PoliticaDePrivacidadePage from './pages/PoliticaDePrivacidadePage';
+
+import { AuthProvider } from './contexts/SupabaseAuthContext';
 
 function App() {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+    <AuthProvider>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/*" element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/intimacoes" element={<IntimacoesPage />} />
-                <Route path="/agenda" element={<AgendaPage />} />
-                <Route path="/glossario" element={<GlossarioPage />} />
-                <Route path="/orientacoes" element={<OrientacoesPage />} />
-                <Route path="/perfil" element={<PerfilPage />} />
-                <Route path="/suporte" element={<SuportePage />} />
-                <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidadePage />} />
-              </Routes>
-            </Layout>
-          } />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/*" element={
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/intimacoes" element={<IntimacoesPage />} />
+                  <Route path="/agenda" element={<AgendaPage />} />
+                  <Route path="/glossario" element={<GlossarioPage />} />
+                  <Route path="/orientacoes" element={<OrientacoesPage />} />
+                  <Route path="/perfil" element={<PerfilPage />} />
+                  <Route path="/suporte" element={<SuportePage />} />
+                  <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidadePage />} />
+                </Routes>
+              </Layout>
+            } />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

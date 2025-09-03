@@ -24,7 +24,7 @@ const StatsChart = ({ data }) => {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={280} className="border border-gray-200 dark:border-gray-700">
       <PieChart>
         <Pie
           data={chartData}

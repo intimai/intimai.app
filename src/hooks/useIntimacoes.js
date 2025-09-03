@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { triggerWebhook } from '@/lib/webhookService';
 
 export function useIntimacoes() {
   const { user } = useAuth();
@@ -71,17 +72,41 @@ export function useIntimacoes() {
       .select();
 
     if (error) throw error;
+
+    // Disparar o webhook após a criação bem-sucedida
+    if (data && data.length > 0) {
+      await triggerWebhook("CRIACAO", data[0], user);
+    }
+
     return data;
   };
 
   const cancelIntimacao = async (intimacaoId) => {
+    const intimacaoToCancel = intimacoes.find(i => i.id === intimacaoId);
+    if (!intimacaoToCancel) {
+      throw new Error("Intimação não encontrada para cancelamento.");
+    }
+
     const { data, error } = await supabase
       .from('intimacoes')
       .update({ cancelamentoEmAndamento: true })
       .eq('id', intimacaoId)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro ao atualizar a intimação para cancelamento:", error);
+      throw error;
+    }
+
+    // Corrigindo a chamada do webhook
+    try {
+      await triggerWebhook("CANCELAMENTO", intimacaoToCancel, user);
+    } catch (error) {
+      console.error("Falha ao disparar o webhook de cancelamento:", error);
+      // Não vamos lançar um erro para o usuário aqui, pois o cancelamento foi registrado no banco.
+      // A falha no webhook deve ser tratada separadamente (ex: logs, monitoramento).
+    }
+
     return data;
   };
 

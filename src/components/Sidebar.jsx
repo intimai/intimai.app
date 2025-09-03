@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { LogOut, User, LayoutDashboard, FileText, Calendar, XCircle, UserCircle, HelpCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
-const logoUrl = "https://storage.googleapis.com/hostinger-horizons-assets-prod/ff2104f3-6482-49a4-9fec-6fd1d70a2204/c4a62877bf18a6bbdd6ac8a9a25455d7.png";
+const logoUrl = "/logo.png";
 
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -19,15 +20,22 @@ const navItems = [
 
 export function Sidebar() {
   const { user, signOut } = useAuth();
+  const { theme } = useTheme();
 
   return (
     <aside className="w-64 flex-shrink-0 bg-card/60 border-r border-border flex flex-col p-4">
-      <div className="flex items-center space-x-3 mb-10 px-2">
-        <img src={logoUrl} alt="IntimAI Logo" className="h-8" />
+      <div className="flex items-center mb-8 px-3">
+        <img 
+          src={theme === 'dark' ? logoUrl : '/Logo_modo_claro.png'} 
+          alt="IntimAI Logo" 
+          style={theme === 'dark' 
+            ? { width: '116.19px', height: '32px' } 
+            : { height: '59px', width: 'auto' }}
+        />
       </div>
 
 
-      <nav className="flex-1 space-y-2 mt-10">
+      <nav className="flex-1 space-y-2">
         {navItems.map((item) => (
           <NavLink
             key={item.name}

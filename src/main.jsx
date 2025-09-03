@@ -11,10 +11,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <AuthProvider>
-          <App />
-          <Toaster />
-        </AuthProvider>
+        <App />
+        <Toaster />
       </ThemeProvider>
     </HelmetProvider>
   </React.StrictMode>
