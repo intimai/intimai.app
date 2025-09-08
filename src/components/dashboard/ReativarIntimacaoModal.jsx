@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { X, Send, Calendar as CalendarIcon, CheckCircle, AlertTriangle } from "lucide-react";
 import { intimacaoSchema } from "@/schemas/intimacaoSchema";
 import { triggerWebhook } from "@/lib/webhookService";
+import { useIntimacoes } from "@/hooks/useIntimacoes";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { useHookFormMask } from "use-mask-input";
 export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuccess }) => {
   const dateInputRef = useRef(null);
   const { user } = useAuth();
+  const { createIntimacao, fetchIntimacoes } = useIntimacoes();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState("form");
 
@@ -83,37 +85,25 @@ export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuc
         tipoProcedimento: formData.tipo_procedimento,
         numeroProcedimento: formData.numero_procedimento,
         primeiraDisponibilidade,
-        status: "pendente",
-        userId: user.id,
-        delegadoResponsavel: user.delegadoResponsavel,
-        delegaciaId: user.delegaciaId,
-        reativada: false,
+        motivo: formData.motivo || "",
       };
 
-      const { data: insertedData, error: insertError } = await supabase.from("intimacoes").insert(submissionData).select();
+      // Usar o hook useIntimacoes que já tem criptografia e webhook
+      const result = await createIntimacao(submissionData);
+      
+      if (result && result.length > 0) {
+        // Atualizar a intimação original como reativada
+        const { error: updateError } = await supabase
+          .from("intimacoes")
+          .update({ reativada: true })
+          .eq("id", intimacao.id);
 
-      if (insertError) {
-        console.error("Erro detalhado ao reativar intimação:", insertError);
-        throw insertError;
-      }
+        if (updateError) {
+          console.error("Erro ao atualizar a intimação original:", updateError);
+          throw updateError;
+        }
 
-      const { error: updateError } = await supabase
-        .from("intimacoes")
-        .update({ reativada: true })
-        .eq("id", intimacao.id);
-
-      if (updateError) {
-        console.error("Erro ao atualizar a intimação original:", updateError);
-        throw updateError;
-      }
-
-      // Webhook para intimação reativada
-      try {
-        await triggerWebhook("REATIVACAO", insertedData[0], user);
-        toast.success("Intimação reativada e notificação enviada com sucesso!");
-      } catch (webhookError) {
-        console.error("Erro ao enviar o webhook de reativação:", webhookError);
-        toast.error(`Intimação reativada, mas ocorreu um erro no webhook: ${webhookError.message}`);
+        toast.success("Intimação reativada com sucesso!");
       }
 
       setSubmissionStatus("success");
@@ -125,18 +115,24 @@ export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuc
     }
   };
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
       reset();
       setSubmissionStatus("form");
+      // Atualizar a lista de intimações para mostrar a nova intimação reativada
+      await fetchIntimacoes();
     };
 
-    const handleClose = () => {
+    const handleClose = async () => {
       reset();
       setSubmissionStatus("form");
-      onClose();
-      if (submissionStatus === 'success' && onSuccess) {
-        onSuccess();
+      // Atualizar a lista de intimações se houve sucesso
+      if (submissionStatus === 'success') {
+        await fetchIntimacoes();
+        if (onSuccess) {
+          onSuccess();
+        }
       }
+      onClose();
     };
 
     if (!isOpen) return null;

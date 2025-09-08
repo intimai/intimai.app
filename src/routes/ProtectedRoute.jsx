@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 import { motion } from 'framer-motion';
+import ConsentModal from '../components/auth/ConsentModal';
 
 const ProtectedRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, needsConsent, acceptTerms } = useAuth();
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  const handleAcceptTerms = async () => {
+    setIsAccepting(true);
+    try {
+      const success = await acceptTerms();
+      if (!success) {
+        alert('Erro ao aceitar os termos. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro ao aceitar termos:', error);
+      alert('Erro ao aceitar os termos. Tente novamente.');
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
+  const handleDeclineTerms = async () => {
+    if (confirm('Você não poderá utilizar o sistema sem aceitar os termos. Deseja sair?')) {
+      // Fazer logout se não aceitar
+      window.location.href = '/login';
+    }
+  };
 
   if (loading) {
     return (
@@ -18,7 +42,21 @@ const ProtectedRoute = () => {
     );
   }
 
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <>
+      <Outlet />
+      <ConsentModal
+        isOpen={needsConsent}
+        onAccept={handleAcceptTerms}
+        onDecline={handleDeclineTerms}
+        isLoading={isAccepting}
+      />
+    </>
+  );
 };
 
 export default ProtectedRoute;

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Filter, Calendar, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,24 +7,64 @@ import { Input } from '@/components/ui/input';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from '../components/dashboard/CreateIntimacaoModal';
 import { IntimacaoCard } from '../components/dashboard/IntimacaoCard';
+import { Pagination } from '@/components/ui/Pagination';
 import { chartColors } from '@/config/chartColors';
 import { toast } from '@/components/ui/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filter, setFilter] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
-  const { intimacoes, loading, fetchIntimacoes, cancelIntimacao } = useIntimacoes();
+  
+  // Hook de debounce para otimizar a busca
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  
+  const { 
+    intimacoes, 
+    loading, 
+    fetchIntimacoes, 
+    cancelIntimacao,
+    // Novos recursos de paginação
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    hasNextPage,
+    hasPreviousPage,
+    totalPages,
+    goToNextPage,
+    goToPreviousPage,
+    goToPage,
+    fetchIntimacoesWithFilters
+  } = useIntimacoes();
+
+  // Efeito para buscar quando filtros ou busca mudarem
+  useEffect(() => {
+    const statusFilter = filter === 'todas' ? null : statusMap[filter];
+    fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
+  }, [filter, debouncedSearchTerm, fetchIntimacoesWithFilters]);
 
   const handleCancelIntimacao = async (id) => {
     try {
       await cancelIntimacao(id);
       toast({ title: "Solicitação de cancelamento enviada." });
-      fetchIntimacoes(); // Re-fetch para atualizar a UI
+      // Re-fetch mantendo os filtros atuais
+      const statusFilter = filter === 'todas' ? null : statusMap[filter];
+      fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
     } catch (error) {
       toast({ title: "Erro ao solicitar cancelamento", description: error.message, variant: "destructive" });
     }
   };
+
+  const handleFilterChange = useCallback((newFilter) => {
+    setFilter(newFilter);
+    // A busca será disparada automaticamente pelo useEffect
+  }, []);
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+    // A busca será disparada automaticamente pelo useEffect após o debounce
+  }, []);
 
   const filterColorClasses = {
     pendentes: { text: 'text-chart-pendentes', border: 'border-chart-pendentes' },
@@ -48,16 +88,8 @@ export function IntimacoesPage() {
     ausentes: 'ausente',
   };
 
-  const filteredIntimacoes = useMemo(() => {
-    return intimacoes.filter(intimacao => {
-      const filterSingular = statusMap[filter] || filter;
-      const statusMatch = filter === 'todas' || intimacao.status === filterSingular;
-      const searchMatch = searchTerm === '' ||
-        (intimacao.intimadoNome && intimacao.intimadoNome.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (intimacao.documento && intimacao.documento.includes(searchTerm));
-      return statusMatch && searchMatch;
-    });
-  }, [intimacoes, filter, searchTerm]);
+  // Remover filtragem local - agora é feita no backend
+  // const filteredIntimacoes = intimacoes; // Direto do hook já filtrado
 
   if (loading) {
     return (
@@ -89,7 +121,7 @@ export function IntimacoesPage() {
                   placeholder="Buscar por nome ou documento..."
                   className="pl-10 w-full"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                 />
               </div>
               <Button onClick={() => setShowCreateModal(true)} className="btn-primary flex-shrink-0">
@@ -135,7 +167,7 @@ export function IntimacoesPage() {
                     return (
                       <button
                         key={f.key}
-                        onClick={() => setFilter(f.key)}
+                        onClick={() => handleFilterChange(f.key)}
                         className={`
                           py-2 px-1 text-sm font-medium transition-all duration-200
                           border-b-2 hover:border-gray-300 dark:hover:border-gray-600
@@ -149,8 +181,8 @@ export function IntimacoesPage() {
               </div>
             </div>
 
-            <div className="pt-4">
-                {filteredIntimacoes.length === 0 ? (
+            <div className="pt-4 space-y-6">
+                {intimacoes.length === 0 ? (
                 <div className="p-12 text-center">
                     <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-white">Nenhuma intimação encontrada</h3>
@@ -158,19 +190,46 @@ export function IntimacoesPage() {
                     <Button onClick={() => setShowCreateModal(true)} className="btn-primary"><Plus className="w-4 h-4 mr-2" />Criar Intimação</Button>
                 </div>
                 ) : (
-                <div className="space-y-4">
-                    {filteredIntimacoes.map((intimacao, index) => (
-                    <motion.div key={intimacao.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-                        <IntimacaoCard intimacao={intimacao} onCancel={handleCancelIntimacao} onReativar={fetchIntimacoes} />
-                    </motion.div>
-                    ))}
-                </div>
+                <>
+                  <div className="space-y-4">
+                      {intimacoes.map((intimacao, index) => (
+                      <motion.div key={intimacao.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+                          <IntimacaoCard intimacao={intimacao} onCancel={handleCancelIntimacao} onReativar={() => {
+                            // Re-fetch mantendo os filtros atuais
+                            const statusFilter = filter === 'todas' ? null : statusMap[filter];
+                            fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
+                          }} />
+                      </motion.div>
+                      ))}
+                  </div>
+                  
+                  {/* Componente de paginação */}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    hasNextPage={hasNextPage}
+                    hasPreviousPage={hasPreviousPage}
+                    onPageChange={goToPage}
+                    onNextPage={goToNextPage}
+                    onPreviousPage={goToPreviousPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    className="mt-6"
+                  />
+                </>
                 )}
             </div>
           </CardContent>
         </Card>
 
-        <CreateIntimacaoModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
+        <CreateIntimacaoModal 
+          open={showCreateModal} 
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            const currentStatusFilter = filter === 'todas' ? null : statusMap[filter];
+            fetchIntimacoesWithFilters(currentStatusFilter, debouncedSearchTerm);
+          }}
+        />
     </div>
   );
 }

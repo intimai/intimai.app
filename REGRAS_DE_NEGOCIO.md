@@ -2,6 +2,23 @@
 
 Este documento descreve o ciclo de vida e as regras de negócio associadas ao status das intimações no sistema IntimAI.
 
+## Contexto e Natureza do Sistema
+
+### Finalidade do Sistema
+O **IntimAI** é uma aplicação desenvolvida para **policiais civis** que facilita a entrega de intimações através de **WhatsApp utilizando Inteligência Artificial**. O sistema permite:
+
+- **Gestão de Intimações**: Organização do ciclo de vida completo das intimações
+- **Agendamento Inteligente**: IA realiza interação com intimados para agendar oitivas
+- **Agenda Individual**: Cada policial acessa apenas suas próprias intimações e agenda
+- **Manipulação Controlada**: Ações baseadas em regras de negócio específicas
+
+### Natureza dos Dados Tratados
+**IMPORTANTE**: Os dados inseridos e manipulados no sistema são de **terceiros (intimados)**, não dos usuários (policiais). 
+
+**Responsabilidade Legal**: Os dados são previamente manipulados e sob responsabilidade dos usuários, que são **agentes públicos** com prerrogativa legal para tal tratamento.
+
+**Contexto LGPD**: O sistema atua como **ferramenta de apoio** para agentes públicos no exercício de suas funções legais, tratando dados de terceiros conforme competências estabelecidas em lei.
+
 ## Ciclo de Vida e Status das Intimações
 
 Uma intimação pode passar pelos seguintes status:

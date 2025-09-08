@@ -20,6 +20,10 @@ import OrientacoesPage from './pages/OrientacoesPage';
 import { PerfilPage } from './pages/PerfilPage';
 import SuportePage from './pages/SuportePage';
 import PoliticaDePrivacidadePage from './pages/PoliticaDePrivacidadePage';
+import PrivacidadePublicaPage from './pages/lgpd/PrivacidadePublicaPage';
+import TransparenciaPage from './pages/lgpd/TransparenciaPage';
+import DireitosTitularesPage from './pages/lgpd/DireitosTitularesPage';
+import TermosDeUsoPage from './pages/TermosDeUsoPage';
 
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 
@@ -33,6 +37,12 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          
+          {/* LGPD Public Routes */}
+          <Route path="/privacidade" element={<PrivacidadePublicaPage />} />
+          <Route path="/transparencia" element={<TransparenciaPage />} />
+          <Route path="/direitos-titulares" element={<DireitosTitularesPage />} />
+          <Route path="/termos-de-uso" element={<TermosDeUsoPage />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>

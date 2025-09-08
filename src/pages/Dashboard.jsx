@@ -13,7 +13,7 @@ import { chartColors } from '@/config/chartColors';
 export function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
-  const { intimacoes, loading } = useIntimacoes();
+  const { intimacoes, loading, fetchIntimacoes } = useIntimacoes();
 
   const statsData = useMemo(() => {
     const counts = {
@@ -102,7 +102,11 @@ export function Dashboard() {
 
       
 
-      <CreateIntimacaoModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
+      <CreateIntimacaoModal 
+        open={showCreateModal} 
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => fetchIntimacoes()}
+      />
     </div>
   );
 }

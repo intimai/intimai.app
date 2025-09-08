@@ -1,14 +1,12 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/contexts/SupabaseAuthContext";
-import { supabase } from "@/lib/customSupabaseClient";
 import { toast } from "sonner";
-import { X, Send, Calendar as CalendarIcon, CheckCircle, AlertTriangle } from "lucide-react";
-import { triggerWebhook } from "@/lib/webhookService";
+import { X, Send, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { intimacaoSchema } from "@/schemas/intimacaoSchema";
+import { useIntimacoes } from "@/hooks/useIntimacoes";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,11 +15,34 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHookFormMask } from "use-mask-input";
 
-export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
+// Constantes para melhor legibilidade
+const SUBMISSION_STATUS = {
+  FORM: "form",
+  SUCCESS: "success"
+};
+
+const MODAL_ANIMATION = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.9 }
+};
+
+const SUCCESS_ANIMATION = {
+  initial: { scale: 0.5, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  transition: {
+    type: "spring",
+    stiffness: 260,
+    damping: 20,
+  }
+};
+
+export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const dateInputRef = useRef(null);
   const { user } = useAuth();
+  const { createIntimacao, fetchIntimacoes } = useIntimacoes();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState("form");
+  const [submissionStatus, setSubmissionStatus] = useState(SUBMISSION_STATUS.FORM);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -60,31 +81,19 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
         tipoProcedimento: formData.tipo_procedimento,
         numeroProcedimento: formData.numero_procedimento,
         primeiraDisponibilidade,
-        status: "pendente",
-        userId: user.userId,
-        delegadoResponsavel: user.delegadoResponsavel,
-        delegaciaId: user.delegaciaId,
+        motivo: formData.motivo || "",
       };
 
-      const { error } = await supabase.from("intimacoes").insert(submissionData);
-
-      if (error) {
-        console.error("Erro detalhado ao criar intimação:", error);
-        throw error;
+      // Usar o hook useIntimacoes que já tem criptografia e webhook
+      const result = await createIntimacao(submissionData);
+      
+      if (result && result.length > 0) {
+        toast.success("Intimação criada com sucesso!");
+        setSubmissionStatus(SUBMISSION_STATUS.SUCCESS);
       }
-
-      // Disparar o webhook
-      try {
-        await triggerWebhook("CRIACAO", submissionData, user);
-        toast.success("Intimação criada e webhook disparado com sucesso!");
-      } catch (webhookError) {
-        console.error("Erro ao enviar webhook:", webhookError);
-        toast.warning("A intimação foi criada, mas houve um problema ao notificar o sistema externo.");
-      }
-
-      setSubmissionStatus("success");
     } catch (error) {
-      toast.error(`Falha ao criar intimação: ${error.message}`);
+      const errorMessage = error?.message || "Erro desconhecido";
+      toast.error(`Falha ao criar intimação: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -92,16 +101,28 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
 
   const handleContinue = () => {
     reset();
-    setSubmissionStatus("form");
+    setSubmissionStatus(SUBMISSION_STATUS.FORM);
+    onClose();
   };
 
   const handleClose = () => {
     reset();
-    setSubmissionStatus("form");
+    setSubmissionStatus(SUBMISSION_STATUS.FORM);
+    
+    // Chamar callback de sucesso para atualizar a lista
+    if (onSuccess) {
+      onSuccess();
+    }
+    
     onClose();
   };
 
+  // Validação de props
   if (!isOpen) return null;
+  if (!onClose) {
+    console.warn('CreateIntimacaoModal: onClose prop is required');
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -114,9 +135,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
         `}
       </style>
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
+        {...MODAL_ANIMATION}
         className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <Card className="w-full">
@@ -127,7 +146,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
             </Button>
           </CardHeader>
           <CardContent>
-            {submissionStatus === "form" ? (
+            {submissionStatus === SUBMISSION_STATUS.FORM ? (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1.5">
@@ -266,15 +285,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose }) => {
               </form>
             ) : (
               <div className="text-center p-8 space-y-6">
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 20,
-                  }}
-                >
+                <motion.div {...SUCCESS_ANIMATION}>
                   <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
                 </motion.div>
                 <h3 className="text-2xl font-bold" style={{ color: '#D1D5DB' }}>

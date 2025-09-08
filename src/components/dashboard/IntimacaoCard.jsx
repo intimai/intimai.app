@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Calendar, Clock, Phone, X, MessageCircle, Hash, HelpCircle, FileText, RefreshCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import StatusLabel from '../ui/StatusLabel';
@@ -7,23 +7,30 @@ import InfoItem from '../ui/InfoItem';
 import { Button } from '@/components/ui/button';
 import ConfirmationModal from '../ui/ConfirmationModal';
 import { ReativarIntimacaoModal } from './ReativarIntimacaoModal';
+import { useMultipleModals } from '@/hooks/useConfirmationModal';
 import { formatDate, formatTime, formatDateTime } from "@/lib/utils";
 
 export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isReativarModalOpen, setIsReativarModalOpen] = useState(false);
+  // Função memoizada para evitar re-renders
+  const handleCancelFunction = useCallback(() => onCancel(intimacao.id), [onCancel, intimacao.id]);
 
+  const modalConfig = useMemo(() => ({
+    cancel: handleCancelFunction, // MESMA função de cancelamento, agora memoizada
+  }), [handleCancelFunction]);
+  
+  // Hook para gerenciar múltiplos modais - PRESERVA EXATAMENTE a mesma lógica
+  const modals = useMultipleModals(modalConfig);
+
+  // Estados para modais customizados (ReativarIntimacaoModal)
+  const [isReativarModalOpen, setIsReativarModalOpen] = React.useState(false);
+
+  // PRESERVA EXATAMENTE as mesmas funções
   const handleCancelClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmCancel = () => {
-    onCancel(intimacao.id);
-    setIsModalOpen(false);
+    modals.cancel.open(); // Mesma ação, novo hook
   };
 
   const handleReativarClick = () => {
-    setIsReativarModalOpen(true);
+    setIsReativarModalOpen(true); // MESMA lógica mantida
   };
 
   const renderActionsContent = () => {
@@ -120,9 +127,10 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         </div>
       </CollapsibleCard>
       <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmCancel}
+        isOpen={modals.cancel.isOpen}
+        onClose={modals.cancel.close}
+        onConfirm={modals.cancel.confirm}
+        isLoading={modals.cancel.isLoading}
         title="Confirmar Cancelamento"
       >
         <p>Você tem certeza que deseja solicitar o cancelamento desta intimação?</p>

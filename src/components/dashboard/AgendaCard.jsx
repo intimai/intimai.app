@@ -1,66 +1,74 @@
-import React, { useState } from 'react';
-import { Clock, User, FileText, Phone, FileType, Hash, X } from 'lucide-react';
-import ConfirmationModal from '../ui/ConfirmationModal';
+import React, { useState, useCallback, useMemo } from 'react';
+import { FileText, Phone, FileType, Hash } from 'lucide-react';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { toast } from '@/components/ui/use-toast';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import Tooltip from '../ui/Tooltip';
 import CollapsibleCard from '../ui/CollapsibleCard';
 import InfoItem from '../ui/InfoItem';
+import { useMultipleModals } from '@/hooks/useConfirmationModal';
+import AgendaItemHeader from './agenda/AgendaItemHeader';
+import AgendaModalsGroup from './agenda/AgendaModalsGroup';
 
 const AgendaItem = ({ intimacao, refetch }) => {
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
-  const [isCompareceuModalOpen, setIsCompareceuModalOpen] = useState(false);
   const { cancelIntimacao, marcarComoAusente, marcarComoCompareceu } = useIntimacoes();
 
-  const cancellableStatuses = ['agendada'];
-
-  const handleOpenCancelModal = (e) => {
-    e.stopPropagation();
-    setIsCancelModalOpen(true);
-  };
-
-  const handleOpenNoShowModal = () => {
-    setIsNoShowModalOpen(true);
-  };
-  
-  const handleOpenCompareceuModal = () => {
-    setIsCompareceuModalOpen(true);
-  };
-
-  const handleConfirmCancel = async () => {
+  // Funções memoizadas para evitar re-renders infinitos
+  const handleCancel = useCallback(async () => {
     try {
       await cancelIntimacao(intimacao.id);
       toast({ title: "Solicitação de cancelamento enviada." });
-      setIsCancelModalOpen(false);
       if (refetch) refetch();
     } catch (error) {
       toast({ title: "Erro ao solicitar cancelamento", variant: "destructive" });
+      throw error;
     }
-  };
+  }, [cancelIntimacao, intimacao.id, refetch]);
 
-  const handleConfirmNoShow = async () => {
+  const handleNoShow = useCallback(async () => {
     try {
       await marcarComoAusente(intimacao.id);
       toast({ title: "Intimação marcada como 'Não Compareceu'." });
-      setIsNoShowModalOpen(false);
       if (refetch) refetch();
     } catch (error) {
       toast({ title: "Erro ao marcar como 'Não Compareceu'", variant: "destructive" });
+      throw error;
     }
-  };
-  
-  const handleConfirmCompareceu = async () => {
+  }, [marcarComoAusente, intimacao.id, refetch]);
+
+  const handleCompareceu = useCallback(async () => {
     try {
       await marcarComoCompareceu(intimacao.id);
       toast({ title: "Intimação marcada como 'Compareceu'." });
-      setIsCompareceuModalOpen(false);
       if (refetch) refetch();
     } catch (error) {
       toast({ title: "Erro ao marcar como 'Compareceu'", variant: "destructive" });
+      throw error;
     }
+  }, [marcarComoCompareceu, intimacao.id, refetch]);
+
+  const modalConfig = useMemo(() => ({
+    cancel: handleCancel,
+    noShow: handleNoShow,
+    compareceu: handleCompareceu,
+  }), [handleCancel, handleNoShow, handleCompareceu]);
+
+  const modals = useMultipleModals(modalConfig);
+
+  // PRESERVA EXATAMENTE a mesma lógica de status canceláveis
+  const cancellableStatuses = ['agendada'];
+  const isCancellable = cancellableStatuses.includes(intimacao.status) && !intimacao.cancelamentoEmAndamento;
+
+  // PRESERVA EXATAMENTE as mesmas funções de abertura
+  const handleOpenCancelModal = (e) => {
+    e.stopPropagation(); // MESMA lógica preservada
+    modals.cancel.open();
+  };
+
+  const handleOpenNoShowModal = () => {
+    modals.noShow.open();
+  };
+  
+  const handleOpenCompareceuModal = () => {
+    modals.compareceu.open();
   };
 
   const formatTime = (timeStr) => {
@@ -77,48 +85,14 @@ const AgendaItem = ({ intimacao, refetch }) => {
     }
   };
 
-  const renderActionsContent = () => (
-    <div className="flex items-center gap-4 justify-end" onClick={(e) => e.stopPropagation()}>
-      {intimacao.cancelamentoEmAndamento ? (
-        <span className="text-xs text-muted-foreground italic w-full text-right block">Em cancelamento...</span>
-      ) : cancellableStatuses.includes(intimacao.status) ? (
-        <button
-          onClick={handleOpenCancelModal}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-md p-1 -m-1"
-        >
-          <X style={{ color: '#C12F71' }} className="w-4 h-4" />
-          Cancelar
-        </button>
-      ) : ['finalizada', 'ausente'].includes(intimacao.status) ? (
-        <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium">Compareceu?</span>
-            <RadioGroup
-              defaultValue={intimacao.status === 'finalizada' ? 'sim' : 'nao'}
-              onValueChange={handleComparecimentoChange}
-              className="flex items-center"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="sim" id={`sim-${intimacao.id}`} />
-                <Label htmlFor={`sim-${intimacao.id}`}>Sim</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="nao" id={`nao-${intimacao.id}`} />
-                <Label htmlFor={`nao-${intimacao.id}`}>Não</Label>
-              </div>
-            </RadioGroup>
-        </div>
-      ) : null}
-    </div>
-  );
-
   const renderHeader = () => (
-    <div className="w-full">
-        <p className="font-bold flex items-center text-foreground"><User className="w-4 h-4 mr-2 text-chart-agendadas" />{intimacao.intimadoNome}</p>
-        <div className="flex items-center justify-between mt-1">
-            <p className="text-sm text-muted-foreground flex items-center"><Clock className="w-4 h-4 mr-2 text-chart-entregues" />{formatTime(intimacao.horaAgendada)}</p>
-            {renderActionsContent()}
-        </div>
-    </div>
+    <AgendaItemHeader
+      intimacao={intimacao}
+      formatTime={formatTime}
+      cancellableStatuses={cancellableStatuses}
+      onOpenCancelModal={handleOpenCancelModal}
+      onComparecimentoChange={handleComparecimentoChange}
+    />
   );
 
   const renderActions = () => null;
@@ -134,35 +108,7 @@ const AgendaItem = ({ intimacao, refetch }) => {
         </div>
       </CollapsibleCard>
 
-      <ConfirmationModal
-        isOpen={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)}
-        onConfirm={handleConfirmCancel}
-        title="Confirmar Cancelamento"
-      >
-        <p>Você tem certeza que deseja solicitar o cancelamento desta intimação agendada?</p>
-        <p className="text-sm text-gray-500 mt-2">Esta ação não poderá ser desfeita.</p>
-      </ConfirmationModal>
-
-      <ConfirmationModal
-        isOpen={isNoShowModalOpen}
-        onClose={() => setIsNoShowModalOpen(false)}
-        onConfirm={handleConfirmNoShow}
-        title="Confirmar Ausência"
-      >
-        <p>Você tem certeza que deseja marcar esta intimação como 'Não Compareceu'?</p>
-        <p className="text-sm text-gray-500 mt-2">Esta ação mudará o status para 'ausente'.</p>
-      </ConfirmationModal>
-      
-      <ConfirmationModal
-        isOpen={isCompareceuModalOpen}
-        onClose={() => setIsCompareceuModalOpen(false)}
-        onConfirm={handleConfirmCompareceu}
-        title="Confirmar Comparecimento"
-      >
-        <p>Você tem certeza que deseja marcar esta intimação como 'Compareceu'?</p>
-        <p className="text-sm text-gray-500 mt-2">Esta ação mudará o status para 'finalizada'.</p>
-      </ConfirmationModal>
+      <AgendaModalsGroup modals={modals} />
     </li>
   );
 };

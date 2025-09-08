@@ -57,7 +57,7 @@ function decrypt(encryptedText: string): string {
   try {
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
-    const keyData = encoder.encode(key.slice(0, 32)); // Usar apenas 32 bytes para AES-256
+    const keyData = encoder.encode(key.slice(0, 32));
     
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
@@ -96,7 +96,7 @@ function encryptSensitiveData(data: any): any {
   const encrypted = { ...data };
   
   // Campos sensíveis para criptografar
-  const sensitiveFields = ['documento', 'telefone', 'intimadoNome', 'motivo'];
+  const sensitiveFields = ['intimadoNome', 'documento', 'telefone'];
   
   sensitiveFields.forEach(field => {
     if (encrypted[field] && typeof encrypted[field] === 'string') {
@@ -114,7 +114,7 @@ function decryptSensitiveData(data: any): any {
   const decrypted = { ...data };
   
   // Campos sensíveis para descriptografar
-  const sensitiveFields = ['documento', 'telefone', 'intimadoNome', 'motivo'];
+  const sensitiveFields = ['intimadoNome', 'documento', 'telefone'];
   
   sensitiveFields.forEach(field => {
     if (decrypted[field] && typeof decrypted[field] === 'string') {

@@ -80,6 +80,16 @@ export function RegisterForm() {
         if (!formData.nomeCompleto) newErrors.nomeCompleto = 'Nome completo é obrigatório';
         if (!formData.delegadoResponsavel) newErrors.delegadoResponsavel = 'Delegado responsável é obrigatório';
         if (!formData.emailPrefix) newErrors.emailPrefix = 'Prefixo do email é obrigatório';
+        
+        // Validação para impedir @ no email
+        if (formData.emailPrefix && formData.emailPrefix.includes('@')) {
+          newErrors.emailPrefix = 'Não digite @ no email. O domínio será adicionado automaticamente.';
+        }
+        
+        // Validação para impedir domínio duplicado
+        if (formData.emailPrefix && selectedEstado && formData.emailPrefix.includes(selectedEstado.dominio.replace('@', ''))) {
+          newErrors.emailPrefix = `Não digite o domínio ${selectedEstado.dominio}. Ele será adicionado automaticamente.`;
+        }
         break;
       case 4:
         if (!formData.password) newErrors.password = 'Senha é obrigatória';
@@ -115,7 +125,26 @@ export function RegisterForm() {
           title: "Verifique seu email!",
           description: "Enviamos um link de confirmação para seu email.",
         });
-        // O redirecionamento agora é feito pelo App.jsx ou pelo fluxo de login
+        
+        // Redirecionar para login após 3 segundos para usuário ver a mensagem
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      } else {
+        // Tratar erro 422 (email já existe) e outros erros
+        if (error.message?.includes('already') || error.message?.includes('exists')) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já possui uma conta. Tente fazer login.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Erro no cadastro",
+            description: error.message || "Ocorreu um erro inesperado. Tente novamente.",
+            variant: "destructive"
+          });
+        }
       }
       setLoading(false);
     }
@@ -171,7 +200,22 @@ export function RegisterForm() {
             <div>
               <Label htmlFor="emailPrefix">Email</Label>
               <div className="flex items-center space-x-2">
-                <Input id="emailPrefix" value={formData.emailPrefix} onChange={(e) => setFormData({...formData, emailPrefix: e.target.value})} className={errors.emailPrefix ? 'border-red-500' : ''} placeholder="usuario" />
+                <Input 
+                  id="emailPrefix" 
+                  value={formData.emailPrefix} 
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    // Remover @ automaticamente se o usuário tentar digitar
+                    value = value.replace('@', '');
+                    // Remover domínio se o usuário tentar digitar
+                    if (selectedEstado && value.includes(selectedEstado.dominio.replace('@', ''))) {
+                      value = value.replace(selectedEstado.dominio.replace('@', ''), '');
+                    }
+                    setFormData({...formData, emailPrefix: value});
+                  }} 
+                  className={errors.emailPrefix ? 'border-red-500' : ''} 
+                  placeholder="usuario" 
+                />
                 <span className="text-muted-foreground">{selectedEstado?.dominio ? `${selectedEstado.dominio.startsWith('@') ? '' : '@'}${selectedEstado.dominio}` : '...'}</span>
               </div>
               {errors.emailPrefix && <p className="text-sm text-red-500 mt-1">{errors.emailPrefix}</p>}
