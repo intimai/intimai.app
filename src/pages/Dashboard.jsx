@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,13 +7,44 @@ import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from '../components/dashboard/CreateIntimacaoModal';
 import StatsChart from '../components/dashboard/StatsChart';
 import { chartColors } from '@/config/chartColors';
+import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { supabase } from '@/lib/customSupabaseClient';
 
 
 
 export function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { user } = useAuth();
   
   const { intimacoes, loading, fetchIntimacoes } = useIntimacoes();
+  
+  // Buscar TODAS as intimações para o Dashboard (sem paginação)
+  const [allIntimacoes, setAllIntimacoes] = useState([]);
+  
+  useEffect(() => {
+    const fetchAllIntimacoes = async () => {
+      try {
+        // Buscar apenas status e userId (não precisa de criptografia)
+        const { data, error } = await supabase
+          .from('intimacoes')
+          .select('status, userId')
+          .eq('userId', user?.id);
+        
+        if (error) {
+          console.error('Erro ao buscar intimações:', error);
+          return;
+        }
+        
+        setAllIntimacoes(data || []);
+      } catch (error) {
+        console.error('Erro ao buscar intimações:', error);
+      }
+    };
+    
+    if (user) {
+      fetchAllIntimacoes();
+    }
+  }, [user]);
 
   const statsData = useMemo(() => {
     const counts = {
@@ -39,7 +70,7 @@ export function Dashboard() {
       ausente: 'ausentes',
     };
 
-    intimacoes.forEach(intimacao => {
+    allIntimacoes.forEach(intimacao => {
       const pluralStatus = statusToPlural[intimacao.status];
       if (pluralStatus) {
         counts[pluralStatus]++;
@@ -58,9 +89,9 @@ export function Dashboard() {
     ].filter(item => item.value > 0);
 
     return data;
-  }, [intimacoes]);
+  }, [allIntimacoes]);
 
-  const totalIntimacoes = intimacoes.length;
+  const totalIntimacoes = allIntimacoes.length;
   const mesAtual = new Date().toLocaleString('default', { month: 'long' });
 
   if (loading) {
