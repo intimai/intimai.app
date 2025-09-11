@@ -234,5 +234,67 @@ export const intimacoesSchema = {
       columns: ['userId'],
       references: 'usuarios(userId)'
     }
+  },
+
+  // Tabela de logs de auditoria
+  audit_logs: {
+    columns: {
+      id: {
+        type: 'uuid',
+        notNull: true,
+        defaultValue: 'gen_random_uuid()'
+      },
+      userId: {
+        type: 'uuid',
+        notNull: false
+      },
+      userEmail: {
+        type: 'text',
+        notNull: false
+      },
+      userNome: {
+        type: 'text',
+        notNull: false
+      },
+      delegaciaNome: {
+        type: 'text',
+        notNull: false
+      },
+      actionType: {
+        type: 'text',
+        notNull: true
+      },
+      resourceType: {
+        type: 'text',
+        notNull: true
+      },
+      resourceId: {
+        type: 'text',
+        notNull: false
+      },
+      details: {
+        type: 'jsonb',
+        notNull: false
+      },
+      ipAddress: {
+        type: 'inet',
+        notNull: false
+      },
+      userAgent: {
+        type: 'text',
+        notNull: false
+      },
+      createdAt: {
+        type: 'timestamp with time zone',
+        notNull: false,
+        defaultValue: 'now()'
+      }
+    },
+    foreignKeys: {
+      audit_logs_user_fkey: {
+        columns: ['userId'],
+        references: 'auth.users(id)'
+      }
+    }
   }
 };

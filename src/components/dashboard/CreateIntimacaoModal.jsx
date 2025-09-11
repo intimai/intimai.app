@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,39 +14,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHookFormMask } from "use-mask-input";
-
-// Constantes para melhor legibilidade
-const SUBMISSION_STATUS = {
-  FORM: "form",
-  SUCCESS: "success"
-};
-
-const MODAL_ANIMATION = {
-  initial: { opacity: 0, scale: 0.9 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.9 }
-};
-
-const SUCCESS_ANIMATION = {
-  initial: { scale: 0.5, opacity: 0 },
-  animate: { scale: 1, opacity: 1 },
-  transition: {
-    type: "spring",
-    stiffness: 260,
-    damping: 20,
-  }
-};
+import { SUBMISSION_STATUS, ANIMATIONS, FORM_CONFIG, SUCCESS_MESSAGES } from "@/constants";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const dateInputRef = useRef(null);
   const { user } = useAuth();
   const { createIntimacao, fetchIntimacoes } = useIntimacoes();
+  const { handleIntimacaoError, handleAuthError } = useErrorHandler();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(SUBMISSION_STATUS.FORM);
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split("T")[0];
+  // Memoizar cálculo da data mínima para evitar recálculos
+  const minDate = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + FORM_CONFIG.MIN_DATE_OFFSET);
+    return tomorrow.toISOString().split("T")[0];
+  }, []);
 
   const {
     register,
@@ -60,52 +44,56 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const registerWithMask = useHookFormMask(register);
   const { ref: dataRegisterRef, ...dataRegisterProps } = register("data");
 
-  const onSubmit = async (formData) => {
+  // Memoizar função de formatação de dados
+  const formatSubmissionData = useCallback((formData) => {
+    const [year, month, day] = formData.data.split("-");
+    const formattedDate = `${day}/${month}/${year}`;
+    const formattedPeriodo =
+      formData.periodo.charAt(0).toUpperCase() + formData.periodo.slice(1);
+    const primeiraDisponibilidade = `${formattedDate} - ${formattedPeriodo}`;
+
+    return {
+      intimadoNome: formData.nome_completo,
+      documento: formData.documento,
+      telefone: formData.telefone,
+      tipoProcedimento: formData.tipo_procedimento,
+      numeroProcedimento: formData.numero_procedimento,
+      primeiraDisponibilidade,
+      motivo: formData.motivo || "",
+    };
+  }, []);
+
+  const onSubmit = useCallback(async (formData) => {
     if (!user) {
-      toast.error("Você precisa estar logado para criar uma intimação.");
+      handleAuthError("Usuário não autenticado");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const [year, month, day] = formData.data.split("-");
-      const formattedDate = `${day}/${month}/${year}`;
-      const formattedPeriodo =
-        formData.periodo.charAt(0).toUpperCase() + formData.periodo.slice(1);
-      const primeiraDisponibilidade = `${formattedDate} - ${formattedPeriodo}`;
-
-      const submissionData = {
-        intimadoNome: formData.nome_completo,
-        documento: formData.documento,
-        telefone: formData.telefone,
-        tipoProcedimento: formData.tipo_procedimento,
-        numeroProcedimento: formData.numero_procedimento,
-        primeiraDisponibilidade,
-        motivo: formData.motivo || "",
-      };
+      const submissionData = formatSubmissionData(formData);
 
       // Usar o hook useIntimacoes que já tem criptografia e webhook
       const result = await createIntimacao(submissionData);
       
       if (result && result.length > 0) {
-        toast.success("Intimação criada com sucesso!");
+        toast.success(SUCCESS_MESSAGES.INTIMACAO_CREATED);
         setSubmissionStatus(SUBMISSION_STATUS.SUCCESS);
       }
     } catch (error) {
-      const errorMessage = error?.message || "Erro desconhecido";
-      toast.error(`Falha ao criar intimação: ${errorMessage}`);
+      handleIntimacaoError(error, 'criar');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [user, formatSubmissionData, createIntimacao, handleAuthError, handleIntimacaoError]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     reset();
     setSubmissionStatus(SUBMISSION_STATUS.FORM);
     onClose();
-  };
+  }, [reset, onClose]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     reset();
     setSubmissionStatus(SUBMISSION_STATUS.FORM);
     
@@ -115,12 +103,11 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
     }
     
     onClose();
-  };
+  }, [reset, onSuccess, onClose]);
 
   // Validação de props
   if (!isOpen) return null;
   if (!onClose) {
-    console.warn('CreateIntimacaoModal: onClose prop is required');
     return null;
   }
 
@@ -135,7 +122,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
         `}
       </style>
       <motion.div
-        {...MODAL_ANIMATION}
+        {...ANIMATIONS.MODAL}
         className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <Card className="w-full">
@@ -177,7 +164,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
                   <Input
                     id="telefone"
                     placeholder="(XX) XXXXX-XXXX"
-                    {...registerWithMask("telefone", "(99) 99999-9999")}
+                    {...registerWithMask("telefone", FORM_CONFIG.PHONE_MASK)}
                   />
                   {errors.telefone && (
                     <p className="text-red-500 text-xs">
@@ -285,7 +272,7 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
               </form>
             ) : (
               <div className="text-center p-8 space-y-6">
-                <motion.div {...SUCCESS_ANIMATION}>
+                <motion.div {...ANIMATIONS.SUCCESS}>
                   <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
                 </motion.div>
                 <h3 className="text-2xl font-bold" style={{ color: '#D1D5DB' }}>

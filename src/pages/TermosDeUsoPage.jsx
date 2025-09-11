@@ -1,32 +1,29 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Logo from '@/components/ui/Logo';
+import { Card, CardContent } from '@/components/ui/card';
 
 const TermosDeUsoPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header com Logo */}
-      <div className="bg-card/60 border-b border-border py-4">
-        <div className="container mx-auto px-4 flex justify-center">
-          <Logo className="h-12" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/logo.png" 
+            alt="IntimAI Logo" 
+            className="h-12 w-auto"
+          />
         </div>
       </div>
 
-      {/* Conteúdo */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto space-y-6">
-          
-          {/* Card do Título */}
-          <Card>
-            <CardContent className="text-center py-8">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Termos de Uso
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Sistema IntimAI - Plataforma para Policiais Civis
-              </p>
-            </CardContent>
-          </Card>
+      {/* Content */}
+      <div className="container mx-auto px-4 py-4 space-y-6 max-w-5xl">
+        {/* Card do Título */}
+        <Card className="w-full">
+          <CardContent className="p-4 text-center">
+            <h2 className="text-2xl font-bold active-link-gradient italic">Termos de Uso</h2>
+            <p className="text-gray-600 text-sm">Sistema IntimAI - Plataforma para Policiais Civis</p>
+          </CardContent>
+        </Card>
 
           {/* Card do Conteúdo */}
           <Card>
@@ -214,8 +211,37 @@ const TermosDeUsoPage = () => {
 
             </CardContent>
           </Card>
+
+        {/* Links de Navegação */}
+        <div className="flex justify-center space-x-4">
+          <a 
+            href="/privacidade" 
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Política de Privacidade
+          </a>
+          <a 
+            href="/transparencia" 
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Portal de Transparência
+          </a>
+          <a 
+            href="/direitos-titulares" 
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Exercer Direitos
+          </a>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-card/60 border-t border-border py-6">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <p>© 2025 IntimAI - Sistema de Gestão de Intimações</p>
+          <p className="text-sm mt-2">Powered by Aurios AI</p>
+        </div>
+      </footer>
     </div>
   );
 };

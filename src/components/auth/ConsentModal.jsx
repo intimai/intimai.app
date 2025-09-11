@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Logo from '@/components/ui/Logo';
 
 const ConsentModal = ({ isOpen, onAccept, onDecline, isLoading }) => {
   if (!isOpen) return null;
@@ -36,7 +35,11 @@ const ConsentModal = ({ isOpen, onAccept, onDecline, isLoading }) => {
         <Card className="bg-transparent border-none">
           <CardHeader className="text-center pb-4">
             <div className="flex justify-center mb-4">
-              <Logo className="h-12" />
+              <img 
+                src="/logo.png" 
+                alt="IntimAI Logo" 
+                className="h-12 w-auto"
+              />
             </div>
             <CardTitle className="text-xl font-semibold text-white">
               Consentimento LGPD - Tratamento de Dados

@@ -4,11 +4,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/contexts/SupabaseAuthContext";
-import { supabase } from "@/lib/customSupabaseClient";
 import { toast } from "sonner";
 import { X, Send, Calendar as CalendarIcon, CheckCircle, AlertTriangle } from "lucide-react";
 import { intimacaoSchema } from "@/schemas/intimacaoSchema";
-import { triggerWebhook } from "@/lib/webhookService";
 import { useIntimacoes } from "@/hooks/useIntimacoes";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +19,7 @@ import { useHookFormMask } from "use-mask-input";
 export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuccess }) => {
   const dateInputRef = useRef(null);
   const { user } = useAuth();
-  const { createIntimacao, fetchIntimacoes } = useIntimacoes();
+  const { reativarIntimacao } = useIntimacoes();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState("form");
 
@@ -88,21 +86,10 @@ export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuc
         motivo: formData.motivo || "",
       };
 
-      // Usar o hook useIntimacoes que já tem criptografia e webhook
-      const result = await createIntimacao(submissionData);
+      // Usar a função específica de reativação que já tem webhook correto
+      const result = await reativarIntimacao(intimacao, submissionData);
       
       if (result && result.length > 0) {
-        // Atualizar a intimação original como reativada
-        const { error: updateError } = await supabase
-          .from("intimacoes")
-          .update({ reativada: true })
-          .eq("id", intimacao.id);
-
-        if (updateError) {
-          console.error("Erro ao atualizar a intimação original:", updateError);
-          throw updateError;
-        }
-
         toast.success("Intimação reativada com sucesso!");
       }
 
@@ -118,20 +105,18 @@ export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuc
     const handleContinue = async () => {
       reset();
       setSubmissionStatus("form");
-      // Atualizar a lista de intimações para mostrar a nova intimação reativada
-      await fetchIntimacoes();
+      // Não fazer refresh aqui - deixar para o handleClose
     };
 
-    const handleClose = async () => {
+    const handleClose = () => {
       reset();
       setSubmissionStatus("form");
-      // Atualizar a lista de intimações se houve sucesso
-      if (submissionStatus === 'success') {
-        await fetchIntimacoes();
-        if (onSuccess) {
-          onSuccess();
-        }
+      
+      // Chamar callback de sucesso para atualizar a lista (mesma lógica do CreateIntimacaoModal)
+      if (onSuccess) {
+        onSuccess();
       }
+      
       onClose();
     };
 

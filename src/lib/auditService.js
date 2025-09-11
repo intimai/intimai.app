@@ -20,16 +20,16 @@ export const auditService = {
       const ipAddress = await this.getClientIP();
       
       const logData = {
-        user_id: user?.id || null,
-        user_email: user?.email || null,
-        user_nome: user?.nome || null,
-        delegacia_nome: user?.delegaciaNome || null,
-        action_type: actionType,
-        resource_type: resourceType,
-        resource_id: resourceId?.toString() || null,
+        userId: user?.id || null,
+        userEmail: user?.email || null,
+        userNome: user?.nome || null,
+        delegaciaNome: user?.delegaciaNome || null,
+        actionType: actionType,
+        resourceType: resourceType,
+        resourceId: resourceId?.toString() || null,
         details: details,
-        ip_address: ipAddress,
-        user_agent: navigator?.userAgent || null,
+        ipAddress: ipAddress,
+        userAgent: navigator?.userAgent || null,
       };
 
       console.log(`📝 [AUDIT] ${actionType} - ${resourceType}:${resourceId}`, logData);
@@ -101,6 +101,27 @@ export const auditService = {
     });
   },
 
+  /**
+   * Log específico para confirmação de identidade (transição entregue → ativa)
+   */
+  async logConfirmacaoIdentidade(user, intimacaoId, intimacaoData) {
+    return this.logAction({
+      user,
+      actionType: 'CONFIRMACAO_IDENTIDADE',
+      resourceType: 'intimacao',
+      resourceId: intimacaoId,
+      details: {
+        status_anterior: 'entregue',
+        status_novo: 'ativa',
+        intimado_nome: intimacaoData?.intimadoNome || 'N/A',
+        documento: intimacaoData?.documento || 'N/A',
+        telefone: intimacaoData?.telefone || 'N/A',
+        motivo: 'Identidade confirmada pela IA - transição para status ativa',
+        timestamp: new Date().toISOString()
+      }
+    });
+  },
+
   async logAcceptTerms(user) {
     return this.logAction({
       user,
@@ -139,11 +160,11 @@ export const auditService = {
         .range(offset, offset + limit - 1);
 
       if (userId) {
-        query = query.eq('user_id', userId);
+        query = query.eq('userId', userId);
       }
 
       if (actionType) {
-        query = query.eq('action_type', actionType);
+        query = query.eq('actionType', actionType);
       }
 
       const { data, error } = await query;

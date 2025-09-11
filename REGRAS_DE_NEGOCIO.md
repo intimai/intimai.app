@@ -35,8 +35,9 @@ Uma intimação pode passar pelos seguintes status:
 
 -   **Ativa (`ativa`):**
     -   **Descrição:** A IA está em conversação ativa com o intimado para realizar o agendamento.
-    -   **Origem da Mudança:** Status atualizado pelo N8N/IA.
+    -   **Origem da Mudança:** Status atualizado pelo N8N/IA após confirmação de identidade.
     -   **Ação do Usuário:** Pode ser cancelada.
+    -   **AUDITORIA:** Esta transição (`entregue` → `ativa`) é registrada automaticamente nos logs de auditoria como `CONFIRMACAO_IDENTIDADE` via trigger do banco de dados. Para mais detalhes, consulte a seção "Sistema de Logs Detalhado" no documento `LGPD_E_SEGURANCA.md`.
 
 -   **Agendada (`agendada`):**
     -   **Descrição:** A intimação foi agendada para uma data e hora futuras.

@@ -168,6 +168,54 @@ export function useIntimacoes() {
     return data;
   };
 
+  const reativarIntimacao = async (intimacaoOriginal, novaIntimacaoData) => {
+    if (!user) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    // 1. Criar nova intimação
+    const { data, error } = await supabase
+      .from('intimacoes')
+      .insert([{
+        ...novaIntimacaoData,
+        userId: user.id,
+        status: 'pendente',
+        reativada: false
+      }])
+      .select();
+
+    if (error) {
+      console.error('Erro ao criar intimação reativada:', error);
+      throw error;
+    }
+
+    // 2. Atualizar intimação original como reativada
+    const { error: updateError } = await supabase
+      .from("intimacoes")
+      .update({ reativada: true })
+      .eq("id", intimacaoOriginal.id);
+
+    if (updateError) {
+      console.error("Erro ao atualizar intimação original:", updateError);
+      throw updateError;
+    }
+
+    // 3. Disparar webhook de REATIVAÇÃO (não de criação)
+    if (data && data.length > 0) {
+      try {
+        await triggerWebhook("REATIVACAO", {
+          intimacaoOriginal: intimacaoOriginal,
+          intimacaoNova: data[0]
+        }, user);
+      } catch (webhookError) {
+        console.error("❌ Erro no webhook de reativação (intimação foi salva):", webhookError);
+        // Não lançamos erro aqui para não quebrar o fluxo
+      }
+    }
+
+    return data;
+  };
+
   const cancelIntimacao = async (intimacaoId) => {
     const intimacaoToCancel = intimacoes.find(i => i.id === intimacaoId);
     if (!intimacaoToCancel) {
@@ -278,6 +326,7 @@ export function useIntimacoes() {
     fetchIntimacoes,
     fetchAgendamentos,
     createIntimacao,
+    reativarIntimacao,
     cancelIntimacao,
     marcarComoAusente,
     marcarComoCompareceu,
