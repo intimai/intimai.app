@@ -10,15 +10,11 @@ const OrientacoesPage = () => {
     },
     {
       title: 'Status das Intimações e Precisão dos Dados',
-      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Verifique sempre a precisão dos dados extraídos e, se encontrar qualquer inconsistência, ajuste-a imediatamente para garantir a integridade das informações.',
-    },
-    {
-      title: 'Gerenciamento de Agenda',
-      content: 'O sistema IntimAI utiliza uma janela de agendamentos de 30 em 30 minutos, tendo como padrão o período de 08:00 às 10:30 para "Manhã" e de 13:00 às 16:30 para "Tarde", com a possibibilidade de escolha de um dos períodos ou ambos no formulário de nova intimação. É recomendável que você gerencie a quantidade de intimações cadastradas por período para que não ultrapassem este limite (6 agendamentos para o período "Manhã" e 8 para o período "Tarde", totalizando 14 horários diários), para a melhor performance do gerenciamento de agendamentos feito pelo IntimAI. Caso sejam cadastradas novas intimações acima deste limite, identificada a exaustão da agenda no(s) período(s) pretendido(s), as intimações excedenmtes serão tratadas como "Canceladas" por motivo "Agenda Cheia", sendo da responsabilidade do usuário solicitar a reativação da mesma pelo sistema para outro período futuro. Utilize sua agenda para visualizar os compromissos que já foram agendados e a consulta de intimações para conferir o status das novas intimações cadastradas. Caso sejam emitidas intimações externas ao sistema IntimAI, por meio eletrônico ou documento oficial entregue presencialmente por oficial competente, priorize sua marcação para entre períodos do sistema. Ex: 08:15; 08:45. 13:15, etc, mantendo sua agenda organizada para melhor desenvolvimento do seu dia=a=dia de trabalho. Obs.: Suas sugest]oes sobre melhorias no nosso sistema de agendamentos sermpre serão muito bem vindas, por se tratar do coração do funcionamento do IntimAI, cujo propósito é servir de suporte de inteligência para seu trabalho.',
+      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida.',
     },
     {
       title: 'Conectividade da Instância do WhatsApp',
-      content: 'A conexão com sua instância do WhatsApp é vital para o recebimento de novas intimações. Verifique periodicamente o status da conexão no painel para assegurar que o serviço esteja ativo e funcionando corretamente.',
+      content: 'A conexão com sua instância do WhatsApp é vital para o envio de novas intimações. Verifique periodicamente a conexão para assegurar que o serviço esteja ativo e funcionando corretamente.',
     },
     {
       title: 'Consentimento e Direitos dos Titulares (LGPD)',
@@ -32,6 +28,11 @@ const OrientacoesPage = () => {
         </>
       ),
     },
+    {
+      title: 'Gerenciamento de Agenda',
+      content: 'O sistema IntimAI utiliza uma janela de agendamentos de 30 em 30 minutos, tendo como padrão o período de 08:00 às 10:30 para "Manhã" e de 13:00 às 16:30 para "Tarde", com a possibibilidade de escolha de um dos períodos ou ambos no formulário de nova intimação. É recomendável que você gerencie a quantidade de intimações cadastradas por período para que não ultrapassem este limite (6 agendamentos para o período "Manhã" e 8 para o período "Tarde", totalizando 14 horários diários) para a melhor performance do gerenciamento feito pelo IntimAI. Caso sejam cadastradas novas intimações acima deste limite, identificada a exaustão da agenda no(s) período(s) pretendido(s), as intimações excedenmtes serão tratadas como "Canceladas" por motivo "Agenda Cheia", sendo de responsabilidade do usuário solicitar a reativação para outro período futuro. Caso sejam emitidas intimações externas ao sistema IntimAI, por meio eletrônico ou documento oficial entregue presencialmente por oficial competente, priorize sua marcação para entre períodos do sistema (Ex: 08:15; 08:45. 13:15, etc), mantendo sua agenda externa organizada para melhor curso do seu dia=a=dia de trabalho. Em caso de imprevistos que impossibilitem o cumprimento de algum de seus horários já agendados ou marcações equivocadas, utilize a opção "Cancelar" disponível em sua agenda ou na consulta por intimação.Os cancelamentos são possíveis para intimações já agendadas ou em processo de agendamento, cuja comunicação ao intimado será feita também pelo IntimAI. Lembre-se de que suas sugestões sobre melhorias sermpre serão muito bem vindas, já que o propósito do IntimAI é servir de suporte inteligente para o seu trabalho.',
+    },
+    
   ];
 
   return (
