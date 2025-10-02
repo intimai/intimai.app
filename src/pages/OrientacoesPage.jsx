@@ -10,11 +10,11 @@ const OrientacoesPage = () => {
     },
     {
       title: 'Status das Intimações e Precisão dos Dados',
-      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu Glossário para entender e acompanhar todo o ciclo de vida de suas intimações para o total controle das intimações enviadas e agendadas, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para o melhor funcionamento do sistema.',
+      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu Glossário para entender e acompanhar todo o ciclo de vida de suas intimações para o total controle das intimações, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para o melhor funcionamento do sistema.',
     },
     {
       title: 'Conectividade da Instância do WhatsApp',
-      content: 'A conexão com sua instância do WhatsApp é vital para o envio de novas intimações. Verifique periodicamente a conexão para assegurar que o serviço esteja ativo e funcionando corretamente.',
+      content: 'A conexão com a instância de WhatsApp da Delegacia é vital para o envio de novas intimações. Verifique periodicamente a conexão para assegurar que o serviço esteja ativo e funcionando corretamente.',
     },
     {
       title: 'Consentimento e Direitos dos Titulares (LGPD)',
@@ -42,13 +42,13 @@ const OrientacoesPage = () => {
             Caso sejam cadastradas novas intimações acima deste limite, identificada a exaustão da agenda, as intimações excedentes serão tratadas como "Canceladas" por motivo "Agenda Cheia", sendo de responsabilidade do usuário solicitar a reativação para outro período futuro.
           </p>
           <p>
-            Para eventuais intimações entregues externamente ao sistema IntimAI, por meio eletrônico ou documento oficial presencial, priorize a marcação entre períodos do sistema (Ex: 08:15; 08:45; 13:15, etc), mantendo sua agenda externa organizada para melhor curso do seu dia-a-dia de trabalho.
+            Para eventuais intimações entregues externamente ao sistema IntimAI, por meio eletrônico ou documento oficial presencial, priorize a marcação entre períodos do sistema (Ex: 08:15; 08:45; 13:15, etc), mantendo sua agenda externa organizada para melhor curso do seu dia-a-dia.
           </p>
           <p>
             Em caso de marcações equivocadas no sistema ou impossibilidade de cumprimento de algum de seus horários já agendados, utilize a opção "Cancelar", disponível em sua agenda ou na consulta por intimação (a comunicação ao intimado será feita pelo IntimAI e, após a conclusão, o status será atualizado para "Cancelada").
           </p>
           <p>
-            Suas sugestões serão sempre muito bem vindas através do menu "Suporte". Nosso propósito é a melhoria contínua das funcionalidades do IntimAI para o melhor atendimento à sua rotina.
+            Suas sugestões serão sempre muito bem vindas através do menu "Suporte". Nosso propósito é a melhoria contínua das funcionalidades do IntimAI para o melhor atendimento à sua rotina de trabalho.
           </p>
         </div>
       ),
