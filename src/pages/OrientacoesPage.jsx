@@ -10,7 +10,7 @@ const OrientacoesPage = () => {
     },
     {
       title: 'Status das Intimações e Precisão dos Dados',
-      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu Glossário para entender e acompanhar todo o ciclo de vida de suas intimações para o total controle das intimações, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para o melhor funcionamento do sistema.',
+      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu Glossário para entender e acompanhar todo o ciclo de vida de suas intimações, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para o melhor funcionamento do sistema.',
     },
     {
       title: 'Conectividade da Instância do WhatsApp',
