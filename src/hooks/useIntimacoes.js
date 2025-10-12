@@ -203,10 +203,8 @@ export function useIntimacoes() {
     // 3. Disparar webhook de REATIVAÇÃO (não de criação)
     if (data && data.length > 0) {
       try {
-        await triggerWebhook("REATIVACAO", {
-          intimacaoOriginal: intimacaoOriginal,
-          intimacaoNova: data[0]
-        }, user);
+        // Enviando apenas a nova intimação, sem a original
+        await triggerWebhook("REATIVACAO", data[0], user);
       } catch (webhookError) {
         console.error("❌ Erro no webhook de reativação (intimação foi salva):", webhookError);
         // Não lançamos erro aqui para não quebrar o fluxo

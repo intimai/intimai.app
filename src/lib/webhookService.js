@@ -21,6 +21,7 @@ export const triggerWebhook = async (webhookType, data, user = null) => {
     userId: user.userId,
     nome: user.nome,
     email: user.email,
+    delegaciaId: user.delegaciaId,
     delegaciaNome: user.delegaciaNome,
     delegaciaEndereco: user.delegaciaEndereco,
     delegadoResponsavel: user.delegadoResponsavel,
