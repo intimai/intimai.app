@@ -32,7 +32,7 @@ export const triggerWebhook = async (webhookType, data, user = null) => {
   const payload = {
     webhookType,
     payload: {
-      data: data, // This will contain either intimação data or support data
+      data, // This will contain either intimação data or support data
       user: userPayload,
     },
   };
