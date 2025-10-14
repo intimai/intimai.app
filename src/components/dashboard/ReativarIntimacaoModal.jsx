@@ -143,9 +143,11 @@ export const ReativarIntimacaoModal = ({ open: isOpen, onClose, intimacao, onSuc
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-green-600">Reativar Intimação</CardTitle>
-                  <p className="text-red-500 text-xs mt-4">
-                    Atenção: Confirme os dados, especialmente o telefone, e escolha uma nova data/período.
-                  </p>
+                  {submissionStatus === "form" && (
+                    <p className="text-red-500 text-xs mt-4">
+                      Atenção: Confirme os dados, especialmente o telefone, e escolha uma nova data/período.
+                    </p>
+                  )}
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleClose} className="-mt-2 -mr-2">
                   <X className="h-4 w-4" />
