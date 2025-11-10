@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from '@/components/dashboard/CreateIntimacaoModal';
+import DuplicateIntimationModal from '@/components/dashboard/DuplicateIntimationModal';
 import { IntimacaoCard } from '@/components/dashboard/IntimacaoCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { chartColors } from '@/config/chartColors';
@@ -14,6 +15,8 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [editingIntimacao, setEditingIntimacao] = useState(null);
   const [filter, setFilter] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -25,6 +28,8 @@ export function IntimacoesPage() {
     loading, 
     fetchIntimacoes, 
     cancelIntimacao,
+    createIntimacao,
+    mutate: refreshIntimacoes,
     // Novos recursos de paginação
     currentPage,
     totalItems,
@@ -37,6 +42,30 @@ export function IntimacoesPage() {
     goToPage,
     fetchIntimacoesWithFilters
   } = useIntimacoes();
+
+  const handleCreationSubmit = async (formData) => {
+    try {
+      await createIntimacao(formData);
+      setShowCreateModal(false);
+      // Força a atualização da lista, mantendo os filtros atuais
+      const statusFilter = filter === 'todas' ? null : statusMap[filter];
+      fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
+      toast({ title: "Intimação criada com sucesso!" });
+    } catch (error) {
+      if (error.message === 'duplicate') {
+        setShowCreateModal(false);
+        setShowDuplicateModal(true);
+      } else {
+        console.error("Erro ao criar intimação:", error);
+        toast({ title: "Erro ao criar intimação", description: error.message, variant: "destructive" });
+      }
+    }
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingIntimacao(null);
+    setShowCreateModal(true);
+  };
 
   // Efeito para buscar quando filtros ou busca mudarem
   useEffect(() => {
@@ -124,7 +153,7 @@ export function IntimacoesPage() {
                   onChange={handleSearchChange}
                 />
               </div>
-              <Button onClick={() => setShowCreateModal(true)} className="btn-primary flex-shrink-0">
+              <Button onClick={handleOpenCreateModal} className="btn-primary flex-shrink-0">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Intimação
               </Button>
@@ -225,10 +254,12 @@ export function IntimacoesPage() {
         <CreateIntimacaoModal 
           open={showCreateModal} 
           onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            const currentStatusFilter = filter === 'todas' ? null : statusMap[filter];
-            fetchIntimacoesWithFilters(currentStatusFilter, debouncedSearchTerm);
-          }}
+          onSubmit={handleCreationSubmit}
+        />
+
+        <DuplicateIntimationModal
+          isOpen={showDuplicateModal}
+          onClose={() => setShowDuplicateModal(false)}
         />
     </div>
   );

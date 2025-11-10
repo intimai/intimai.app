@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,35 +16,37 @@ export function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { user } = useAuth();
   
-  const { intimacoes, loading, fetchIntimacoes } = useIntimacoes();
+  const { fetchIntimacoesWithFilters } = useIntimacoes();
   
   // Buscar TODAS as intimações para o Dashboard (sem paginação)
   const [allIntimacoes, setAllIntimacoes] = useState([]);
-  
-  useEffect(() => {
-    const fetchAllIntimacoes = async () => {
-      try {
-        // Buscar apenas status e userId (não precisa de criptografia)
-        const { data, error } = await supabase
-          .from('intimacoes')
-          .select('status, userId')
-          .eq('userId', user?.id);
-        
-        if (error) {
-          console.error('Erro ao buscar intimações:', error);
-          return;
-        }
-        
-        setAllIntimacoes(data || []);
-      } catch (error) {
-        console.error('Erro ao buscar intimações:', error);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAllIntimacoes = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('intimacoes')
+        .select('status, userId')
+        .eq('userId', user.id);
+      
+      if (error) {
+        console.error('Erro ao buscar intimações para o dashboard:', error);
+        return;
       }
-    };
-    
-    if (user) {
-      fetchAllIntimacoes();
+      
+      setAllIntimacoes(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar intimações para o dashboard:', error);
+    } finally {
+      setLoading(false);
     }
   }, [user]);
+  
+  useEffect(() => {
+    fetchAllIntimacoes();
+  }, [fetchAllIntimacoes]);
 
   const statsData = useMemo(() => {
     const counts = {
@@ -136,7 +138,12 @@ export function Dashboard() {
       <CreateIntimacaoModal 
         open={showCreateModal} 
         onClose={() => setShowCreateModal(false)}
-        onSuccess={() => fetchIntimacoes()}
+        onSuccess={() => {
+          // Primeiro, busca os dados para os cards do dashboard
+          fetchAllIntimacoes();
+          // Depois, busca os dados para a lista de intimações (se necessário em outro lugar)
+          fetchIntimacoesWithFilters(null, '');
+        }}
       />
     </div>
   );

@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { triggerWebhook } from '@/lib/webhookService';
-import { encryptSensitiveData, decryptSensitiveData } from '@/lib/encryptionService';
+import { decryptSensitiveData } from '@/lib/encryptionService';
 
 export function useIntimacoes() {
-  const { user } = useAuth();
+  const { user, supabaseClient } = useAuth();
   const [intimacoes, setIntimacoes] = useState([]);
   const [agendamentosDoDia, setAgendamentosDoDia] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +38,7 @@ export function useIntimacoes() {
   }, []);
 
   const fetchIntimacoes = useCallback(async (page = 1, statusFilter = null, searchTerm = '') => {
+    console.log(`[useIntimacoes] fetchIntimacoes chamada com: page=${page}, statusFilter=${statusFilter}, searchTerm=${searchTerm}`);
     if (!user) {
       setLoading(false);
       return;
@@ -78,11 +79,14 @@ export function useIntimacoes() {
       setIntimacoes([]);
       setTotalItems(0);
     } else {
+      console.log('[useIntimacoes] Dados recebidos do Supabase:', data);
       // Descriptografar dados antes de definir no estado
       decryptedData = await decryptIntimacoesData(data || []);
+      console.log('[useIntimacoes] Dados descriptografados:', decryptedData);
       
       // Forçar re-render criando um novo array com timestamp
       const timestamp = Date.now();
+      console.log('[useIntimacoes] Atualizando estado das intimações...');
       setIntimacoes([...decryptedData]);
       setTotalItems(count || 0);
       setRefreshKey(timestamp);
@@ -124,7 +128,7 @@ export function useIntimacoes() {
 
     const { data: userData, error: userError } = await supabase
       .from('usuarios')
-      .select('delegaciaId, delegadoResponsavel')
+      .select('delegaciaId') // Apenas a delegaciaId é necessária aqui
       .eq('userId', user.id)
       .single();
 
@@ -135,37 +139,44 @@ export function useIntimacoes() {
 
     if (!userData) throw new Error("Perfil do usuário não encontrado.");
 
-    // Criptografar dados sensíveis antes de salvar
-    const encryptedData = await encryptSensitiveData(intimacaoData);
-
-    const { data, error } = await supabase
-      .from('intimacoes')
-      .insert([{
-        ...encryptedData,
+    // Invocar a Edge Function para criar a intimação com verificação de duplicidade
+    const { data, error } = await supabase.functions.invoke('create-intimacao-with-check', {
+      body: {
+        ...intimacaoData,
         userId: user.id,
         delegaciaId: userData.delegaciaId,
-        delegadoResponsavel: userData.delegadoResponsavel,
-        status: 'pendente',
-        criadoEm: new Date().toISOString(),
-      }])
-      .select();
+      },
+    });
 
     if (error) {
-      console.error('Erro ao inserir intimação:', error);
-      throw error;
+      // Log detalhado do objeto de erro para depuração
+      console.error("[useIntimacoes] Erro detalhado da Edge Function:", error);
+
+      // A Edge Function agora lança um erro com uma mensagem específica para duplicatas.
+      if (error.message.includes("duplicate")) {
+        console.warn("[useIntimacoes] Conflito: Intimação duplicada detectada.");
+        throw new Error('duplicate');
+      }
+
+      // Para outros erros, lança um erro genérico.
+      console.error('Erro ao invocar a Edge Function create-intimacao-with-check:', error);
+      throw new Error(error.message || 'Erro ao criar intimação');
     }
 
+    // A Edge Function retorna um array, então pegamos o primeiro elemento
+    const novaIntimacao = data && data.length > 0 ? data[0] : null;
+
     // Disparar o webhook após a criação bem-sucedida
-    if (data && data.length > 0) {
+    if (novaIntimacao) {
       try {
-        await triggerWebhook("CRIACAO", data[0], user);
+        await triggerWebhook("CRIACAO", novaIntimacao, user);
       } catch (webhookError) {
         console.error("❌ Erro no webhook (intimação foi salva):", webhookError);
         // Não lançamos erro aqui para não quebrar o fluxo
       }
     }
 
-    return data;
+    return novaIntimacao;
   };
 
   const reativarIntimacao = async (intimacaoOriginal, novaIntimacaoData) => {

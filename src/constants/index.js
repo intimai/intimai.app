@@ -9,6 +9,7 @@
 export const SUBMISSION_STATUS = {
   FORM: 'form',
   SUCCESS: 'success',
+  DUPLICATE: 'duplicate', // Adicionado para tratar duplicidade
   PENDENTE: 'pendente',
   ENTREGUE: 'entregue',
   ATIVA: 'ativa',
