@@ -154,7 +154,7 @@ export function useIntimacoes() {
 
       // A Edge Function agora lança um erro com um status 409 para duplicatas.
       // O corpo do erro contém a mensagem e os detalhes da duplicata.
-      if (error.context && error.context.status === 409) {
+      if (error.name === 'FunctionsHttpError' && error.context && error.context.status === 409) {
         const errorBody = await error.context.json();
         console.warn("[useIntimacoes] Conflito: Intimação duplicada detectada.", errorBody);
         // Lança um erro customizado com os detalhes da duplicata
