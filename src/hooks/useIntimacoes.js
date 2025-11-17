@@ -38,7 +38,6 @@ export function useIntimacoes() {
   }, []);
 
   const fetchIntimacoes = useCallback(async (page = 1, statusFilter = null, searchTerm = '') => {
-    console.log(`[useIntimacoes] fetchIntimacoes chamada com: page=${page}, statusFilter=${statusFilter}, searchTerm=${searchTerm}`);
     if (!user) {
       setLoading(false);
       return;
@@ -79,14 +78,11 @@ export function useIntimacoes() {
       setIntimacoes([]);
       setTotalItems(0);
     } else {
-      console.log('[useIntimacoes] Dados recebidos do Supabase:', data);
       // Descriptografar dados antes de definir no estado
       decryptedData = await decryptIntimacoesData(data || []);
-      console.log('[useIntimacoes] Dados descriptografados:', decryptedData);
       
       // Forçar re-render criando um novo array com timestamp
       const timestamp = Date.now();
-      console.log('[useIntimacoes] Atualizando estado das intimações...');
       setIntimacoes([...decryptedData]);
       setTotalItems(count || 0);
       setRefreshKey(timestamp);
@@ -149,14 +145,10 @@ export function useIntimacoes() {
     });
 
     if (error) {
-      // Log detalhado do objeto de erro para depuração
-      console.error("[useIntimacoes] Erro detalhado da Edge Function:", error);
-
       // A Edge Function agora lança um erro com um status 409 para duplicatas.
       // O corpo do erro contém a mensagem e os detalhes da duplicata.
       if (error.name === 'FunctionsHttpError' && error.context && error.context.status === 409) {
         const errorBody = await error.context.json();
-        console.warn("[useIntimacoes] Conflito: Intimação duplicada detectada.", errorBody);
         // Lança um erro customizado com os detalhes da duplicata
         throw {
           name: 'DuplicateIntimacaoError',
