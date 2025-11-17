@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from '@/components/dashboard/CreateIntimacaoModal';
-import DuplicateIntimationModal from '@/components/dashboard/DuplicateIntimationModal';
 import { IntimacaoCard } from '@/components/dashboard/IntimacaoCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { chartColors } from '@/config/chartColors';
@@ -15,8 +14,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-  const [duplicateDetails, setDuplicateDetails] = useState(null); // Estado para detalhes da duplicata
   const [editingIntimacao, setEditingIntimacao] = useState(null);
   const [filter, setFilter] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
@@ -245,12 +242,6 @@ export function IntimacoesPage() {
           open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSuccess={handleCreationSubmit} // Passa a função de recarregamento
-        />
-
-        <DuplicateIntimationModal
-          isOpen={showDuplicateModal}
-          onClose={() => setShowDuplicateModal(false)}
-          details={duplicateDetails} // Passa os detalhes para o modal
         />
     </div>
   );
