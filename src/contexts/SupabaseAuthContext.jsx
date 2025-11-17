@@ -70,7 +70,11 @@ export const AuthProvider = ({ children }) => {
     getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      await fetchSessionAndProfile(session);
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+      } else if (session) {
+        await fetchSessionAndProfile(session);
+      }
     });
 
     return () => {
