@@ -74,29 +74,37 @@ serve(async (req) => {
     // Log para depuração: imprimir os dados recebidos
     console.log("Dados recebidos pela Edge Function:", JSON.stringify(intimacaoData, null, 2));
 
-    // 1. Normalizar telefone e gerar HMAC
+    // 1. Verificar duplicidade usando a Edge Function 'consulta_duplicada'
+    const { data: duplicadaResponse, error: duplicadaError } = await supabaseClient.functions.invoke('consulta_duplicada', {
+      body: {
+        telefone: intimacaoData.telefone,
+        status_para_verificar: ['pendente', 'ativa', 'entregue']
+      },
+    });
+
+    if (duplicadaError) {
+      console.error('Erro ao invocar a função de consulta de duplicados:', duplicadaError);
+      throw new Error('Erro interno ao verificar duplicidade.');
+    }
+
+    // A resposta da função invocada é uma string, então precisamos fazer o parse.
+    const duplicadaData = duplicadaResponse ? JSON.parse(duplicadaResponse) : null;
+
+    if (duplicadaData?.existe_intimacao) {
+      // Log removido para evitar poluir a saída em produção.
+      return new Response(
+        JSON.stringify({
+          error: 'DUPLICATE_FOUND',
+          message: `Já existe uma intimação para este telefone com o status "${duplicadaData.status_existente}".`,
+          details: duplicadaData,
+        }),
+        { status: 409, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Se não houver duplicata, prosseguir com a criação do HMAC para a inserção
     const telefoneNormalized = normalizePhone(intimacaoData.telefone);
     const telefoneHmac = await createHmac(telefoneNormalized);
-
-    // 2. Verificar duplicidade
-    const { data: existingIntimacao, error: existingError } = await supabaseClient
-      .from('intimacoes')
-      .select('id')
-      .eq('telefone_hmac', telefoneHmac)
-      .in('status', ['pendente', 'agendada']);
-
-    if (existingError) {
-      console.error('Erro ao verificar duplicidade:', existingError);
-      throw existingError;
-    }
-
-    if (existingIntimacao && existingIntimacao.length > 0) {
-      console.warn('Tentativa de criar intimação duplicada:', { telefone: intimacaoData.telefone });
-      return new Response(JSON.stringify({ error: "duplicate" }), {
-        status: 409, // 409 Conflict é um bom status para duplicidade
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
 
     // 3. Criptografar os campos sensíveis
     const encryptedNome = await encryptField(intimacaoData.intimadoNome);

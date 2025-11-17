@@ -152,10 +152,20 @@ export function useIntimacoes() {
       // Log detalhado do objeto de erro para depuração
       console.error("[useIntimacoes] Erro detalhado da Edge Function:", error);
 
-      // A Edge Function agora lança um erro com uma mensagem específica para duplicatas.
-      if (error.message.includes("duplicate")) {
-        console.warn("[useIntimacoes] Conflito: Intimação duplicada detectada.");
-        throw new Error('duplicate');
+      // A Edge Function agora lança um erro com um status 409 para duplicatas.
+      // O corpo do erro contém a mensagem e os detalhes da duplicata.
+      if (error.context && error.context.status === 409) {
+        const errorBody = await error.context.json();
+        console.warn("[useIntimacoes] Conflito: Intimação duplicada detectada.", errorBody);
+        // Lança um erro customizado com os detalhes da duplicata
+        throw {
+          name: 'DuplicateIntimacaoError',
+          message: errorBody.message, // ex: "DUPLICATE_FOUND"
+          details: { 
+            status: errorBody.details.status_existente, 
+            created_at: errorBody.details.criadoEm 
+          }, // ex: { status_existente: 'ativa', id_intimacao: '...' }
+        };
       }
 
       // Para outros erros, lança um erro genérico.

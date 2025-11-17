@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 export function IntimacoesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateDetails, setDuplicateDetails] = useState(null); // Estado para detalhes da duplicata
   const [editingIntimacao, setEditingIntimacao] = useState(null);
   const [filter, setFilter] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,22 +45,11 @@ export function IntimacoesPage() {
   } = useIntimacoes();
 
   const handleCreationSubmit = async (formData) => {
-    try {
-      await createIntimacao(formData);
-      setShowCreateModal(false);
-      // Força a atualização da lista, mantendo os filtros atuais
-      const statusFilter = filter === 'todas' ? null : statusMap[filter];
-      fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
-      toast({ title: "Intimação criada com sucesso!" });
-    } catch (error) {
-      if (error.message === 'duplicate') {
-        setShowCreateModal(false);
-        setShowDuplicateModal(true);
-      } else {
-        console.error("Erro ao criar intimação:", error);
-        toast({ title: "Erro ao criar intimação", description: error.message, variant: "destructive" });
-      }
-    }
+    // A lógica de criação e tratamento de erro agora está centralizada no CreateIntimacaoModal.
+    // A página apenas se preocupa em recarregar os dados em caso de sucesso.
+    const statusFilter = filter === 'todas' ? null : statusMap[filter];
+    fetchIntimacoesWithFilters(statusFilter, debouncedSearchTerm);
+    toast({ title: "Intimação criada com sucesso!" });
   };
 
   const handleOpenCreateModal = () => {
@@ -251,15 +241,16 @@ export function IntimacoesPage() {
           </CardContent>
         </Card>
 
-        <CreateIntimacaoModal 
-          open={showCreateModal} 
+        <CreateIntimacaoModal
+          open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreationSubmit}
+          onSuccess={handleCreationSubmit} // Passa a função de recarregamento
         />
 
         <DuplicateIntimationModal
           isOpen={showDuplicateModal}
           onClose={() => setShowDuplicateModal(false)}
+          details={duplicateDetails} // Passa os detalhes para o modal
         />
     </div>
   );

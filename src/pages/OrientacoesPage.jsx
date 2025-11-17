@@ -6,7 +6,7 @@ const OrientacoesPage = () => {
   const orientations = [
     {
       title: 'Uso Geral da Plataforma',
-      content: 'Explore todas as funcionalidades para otimizar sua rotina. Em caso de dúvidas, consulte nossa documentação ou entre em contato com o suporte.',
+      content: 'Explore todas as funcionalidades para otimizar sua rotina. Em caso de dúvidas, entre em contato com o suporte através do menu lateral. Entraremos em contato em breve para garantir sua melhor experiência com o IntimAI',
     },
     {
       title: 'Status das Intimações e Precisão dos Dados',

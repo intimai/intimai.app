@@ -14,9 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHookFormMask } from "use-mask-input";
-import { SUBMISSION_STATUS, ANIMATIONS, FORM_CONFIG, SUCCESS_MESSAGES } from "@/constants";
+import { 
+  SUBMISSION_STATUS, 
+  ANIMATIONS, 
+  FORM_CONFIG, 
+} from "@/constants";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
-import DuplicateIntimationModal from "./DuplicateIntimationModal";
+import { AlertCircle } from "lucide-react";
 
 export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const dateInputRef = useRef(null);
@@ -24,8 +28,10 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const { createIntimacao, fetchIntimacoes } = useIntimacoes();
   const { handleIntimacaoError, handleAuthError } = useErrorHandler();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState(SUBMISSION_STATUS.FORM);
-  const [isDuplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState(
+    SUBMISSION_STATUS.FORM
+  );
+  const [duplicateDetails, setDuplicateDetails] = useState(null);
 
   // Memoizar cálculo da data mínima para evitar recálculos
   const minDate = useMemo(() => {
@@ -77,12 +83,17 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
       await createIntimacao(submissionData);
       setSubmissionStatus(SUBMISSION_STATUS.SUCCESS);
     } catch (error) {
-      // Relança o erro para ser tratado pelo componente pai
-      throw error;
+      if (error.name === "DuplicateIntimacaoError") {
+        setDuplicateDetails(error.details);
+        setSubmissionStatus(SUBMISSION_STATUS.DUPLICATE);
+      } else {
+        // Usa o hook de erro para outros tipos de falha
+        handleIntimacaoError(error);
+      }
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, formatSubmissionData, createIntimacao, handleAuthError]);
+  }, [user, formatSubmissionData, createIntimacao, handleAuthError, onSuccess, handleIntimacaoError]);
 
   const handleContinue = useCallback(() => {
     reset();
@@ -269,32 +280,64 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
                     </Button>
                   </div>
                 </form>
+              ) : submissionStatus === SUBMISSION_STATUS.SUCCESS ? (
+                <div className="text-center p-8 space-y-6">
+                  <motion.div {...ANIMATIONS.SUCCESS}>
+                    <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
+                  </motion.div>
+                  <h3
+                    className="text-2xl font-bold"
+                    style={{ color: "#D1D5DB" }}
+                  >
+                    Intimação Registrada com Sucesso!
+                  </h3>
+                  <p className="text-gray-600">
+                    A intimação foi enviada e o intimado será notificado em
+                    breve.
+                  </p>
+                  <div className="flex justify-center space-x-4 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleClose}
+                    >
+                      Encerrar
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleContinue}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Registrar Nova Intimação
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                submissionStatus === SUBMISSION_STATUS.SUCCESS && (
-                  <div className="text-center p-8 space-y-6">
+                submissionStatus === SUBMISSION_STATUS.DUPLICATE && (
+                  <div className="text-center p-8 space-y-6 bg-black rounded-lg">
                     <motion.div {...ANIMATIONS.SUCCESS}>
-                      <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
+                      <AlertCircle className="h-16 w-16 mx-auto text-yellow-500" />
                     </motion.div>
-                    <h3 className="text-2xl font-bold" style={{ color: '#D1D5DB' }}>
-                      Intimação Registrada com Sucesso!
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ color: "#D1D5DB" }}
+                    >
+                      Intimação Duplicada
                     </h3>
-                    <p className="text-gray-600">
-                      A intimação foi enviada e o intimado será notificado em breve.
+                    <p className="text-gray-400">
+                      Já existe uma intimação em andamento para este intimado no sistema. Para consistência das conversas iniciadas pela IA, somente uma intimação por número de telefone pode ser registrada por vez. Após a finalização da conversa atual entre o IntimAI e o intimado, novas intimações poderão ser geradas para o mesmo telefone. Caso o registro tenha sido feito por você, acompanhe o status da intimação anterior até que ela esteja Agendada ou Recusada, ou tente novamente mais tarde.
                     </p>
+                    {duplicateDetails && (
+                      <div className="text-left text-sm text-gray-500 pt-4">
+                      </div>
+                    )}
                     <div className="flex justify-center space-x-4 pt-4">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={handleClose}
                       >
-                        Encerrar
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={handleContinue}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        Registrar Nova Intimação
+                        OK
                       </Button>
                     </div>
                   </div>
@@ -304,10 +347,6 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
           </Card>
         </motion.div>
       </div>
-      <DuplicateIntimationModal 
-        isOpen={isDuplicateModalOpen}
-        onClose={() => setDuplicateModalOpen(false)}
-      />
     </>
   );
 };
