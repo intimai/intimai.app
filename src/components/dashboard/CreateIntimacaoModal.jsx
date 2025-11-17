@@ -82,6 +82,9 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
       const submissionData = formatSubmissionData(formData);
       await createIntimacao(submissionData);
       setSubmissionStatus(SUBMISSION_STATUS.SUCCESS);
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       if (error.name === "DuplicateIntimacaoError") {
         setDuplicateDetails(error.details);
@@ -104,15 +107,8 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
   const handleClose = useCallback(() => {
     reset();
     setSubmissionStatus(SUBMISSION_STATUS.FORM);
-    
-    // Chamar callback de sucesso para atualizar a lista
-    if (onSuccess) {
-      console.log("[CreateIntimacaoModal] Chamando onSuccess no handleClose.");
-      onSuccess();
-    }
-    
     onClose();
-  }, [reset, onSuccess, onClose]);
+  }, [reset, onClose]);
 
   // Validação de props
   if (!isOpen) return null;
