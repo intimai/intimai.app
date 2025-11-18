@@ -77,7 +77,7 @@ export function PerfilPage() {
             <Label htmlFor="delegadoResponsavel">Delegado Responsável</Label>
             <Input id="delegadoResponsavel" name="delegadoResponsavel" value={delegadoResponsavel} onChange={(e) => setDelegadoResponsavel(e.target.value)} />
           </div>
-          <Button onClick={handleSave}>Salvar Alterações</Button>
+          <Button onClick={handleSave} className="w-full btn-primary">Salvar Alterações</Button>
         </CardContent>
       </Card>
     </div>

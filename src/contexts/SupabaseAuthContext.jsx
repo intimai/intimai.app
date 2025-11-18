@@ -10,55 +10,47 @@ export const AuthProvider = ({ children }) => {
   const [needsConsent, setNeedsConsent] = useState(false);
 
   const fetchSessionAndProfile = async (session) => {
-    if (session) {
-      // Etapa 1: Buscar perfil do usuário
-      const { data: userProfile, error: userProfileError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('userId', session.user.id)
-        .single();
+    setLoading(true);
+    try {
+      if (session) {
+        const { data: userProfile, error: userProfileError } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('userId', session.user.id)
+          .single();
 
-      if (userProfileError || !userProfile) {
+        if (userProfileError || !userProfile || !userProfile.delegaciaId) {
+          setUser(null);
+          return;
+        }
+
+        const { data: delegaciaData, error: delegaciaError } = await supabase
+          .from('delegacias')
+          .select('nome, endereco, cidadeEstado')
+          .eq('delegaciaId', userProfile.delegaciaId)
+          .single();
+
+        if (delegaciaError || !delegaciaData) {
+          setUser(null);
+          return;
+        }
+
+        const finalUser = {
+          ...session.user,
+          ...userProfile,
+          delegaciaNome: delegaciaData.nome,
+          delegaciaEndereco: `${delegaciaData.endereco}, ${delegaciaData.cidadeEstado}`,
+        };
+
+        const needsTermsAcceptance = !userProfile.terms_accepted_at;
+        setNeedsConsent(needsTermsAcceptance);
+        setUser(finalUser);
+      } else {
         setUser(null);
-        setLoading(false);
-        return;
       }
-
-      if (!userProfile.delegaciaId) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      // Etapa 2: Buscar dados da delegacia
-      const { data: delegaciaData, error: delegaciaError } = await supabase
-        .from('delegacias')
-        .select('nome, endereco, cidadeEstado')
-        .eq('delegaciaId', userProfile.delegaciaId)
-        .single();
-
-      if (delegaciaError || !delegaciaData) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      const finalUser = {
-        ...session.user,
-        ...userProfile,
-        delegaciaNome: delegaciaData.nome,
-        delegaciaEndereco: `${delegaciaData.endereco}, ${delegaciaData.cidadeEstado}`,
-      };
-
-      // Verificar se precisa aceitar termos
-      const needsTermsAcceptance = !userProfile.terms_accepted_at;
-      setNeedsConsent(needsTermsAcceptance);
-
-      setUser(finalUser);
-    } else {
-      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -144,7 +136,7 @@ export const AuthProvider = ({ children }) => {
     needsConsent,
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

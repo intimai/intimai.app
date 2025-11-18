@@ -18,14 +18,9 @@ function IdleTimeoutHandler({ children }) {
     setIsModalOpen(false);
   };
 
-  const handleAction = () => {
-    signOut();
-  };
-
   const { reset, getRemainingTime } = useIdleTimer({
     onIdle: handleIdle,
     onActive: handleActive,
-    onAction: handleAction,
     timeout: 1000 * 60 * 60, // 1 hora
     promptBeforeIdle: 1000 * 60 * 1, // 1 minuto de aviso
     throttle: 500,
@@ -37,13 +32,16 @@ function IdleTimeoutHandler({ children }) {
   };
 
   return (
-    <SessionTimeoutModal
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      onStayLoggedIn={handleStayLoggedIn}
-      onLogout={signOut}
-      remainingTime={getRemainingTime()}
-    />
+    <>
+      {children}
+      <SessionTimeoutModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStayLoggedIn={handleStayLoggedIn}
+        onLogout={signOut}
+        remainingTime={getRemainingTime()}
+      />
+    </>
   );
 };
 

@@ -20,6 +20,7 @@ import { GlossarioPage } from './pages/GlossarioPage';
 import { IntimacoesPage } from './pages/IntimacoesPage';
 import OrientacoesPage from './pages/OrientacoesPage';
 import { PerfilPage } from './pages/PerfilPage';
+import { ConexaoPage } from './pages/ConexaoPage';
 import SuportePage from './pages/SuportePage';
 import PoliticaDePrivacidadePage from './pages/PoliticaDePrivacidadePage';
 import PrivacidadePublicaPage from './pages/lgpd/PrivacidadePublicaPage';
@@ -27,9 +28,7 @@ import TransparenciaPage from './pages/lgpd/TransparenciaPage';
 import DireitosTitularesPage from './pages/lgpd/DireitosTitularesPage';
 import TermosDeUsoPage from './pages/TermosDeUsoPage';
 
-import { AuthProvider } from './contexts/SupabaseAuthContext';
-import { useAuth } from './contexts/SupabaseAuthContext';
-import IdleTimeoutHandler from './components/session/IdleTimeoutHandler';
+
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -61,6 +60,7 @@ const AppContent = () => {
                 <Route path="/glossario" element={<GlossarioPage />} />
                 <Route path="/orientacoes" element={<OrientacoesPage />} />
                 <Route path="/perfil" element={<PerfilPage />} />
+                <Route path="/conexao" element={<ConexaoPage />} />
                 <Route path="/suporte" element={<SuportePage />} />
                 <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidadePage />} />
               </Routes>

@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, User, LayoutDashboard, FileText, Calendar, XCircle, UserCircle, HelpCircle, ShieldCheck } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, FileText, Calendar, XCircle, UserCircle, HelpCircle, ShieldCheck, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+
 
 const logoUrl = "/logo.png";
 
@@ -15,6 +16,7 @@ const navItems = [
   { name: 'Glossário', icon: Calendar, path: '/glossario' },
   { name: 'Orientações', icon: XCircle, path: '/orientacoes' },
   { name: 'Perfil', icon: UserCircle, path: '/perfil' },
+  { name: 'Conexão', icon: MessageCircle, path: '/conexao' },
   { name: 'Suporte', icon: HelpCircle, path: '/suporte' },
 ];
 

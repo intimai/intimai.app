@@ -142,7 +142,7 @@ const SuportePage = () => {
                         />
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full btn-primary" disabled={isSubmitting}>
                         {isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}
                     </Button>
                 </form>

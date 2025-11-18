@@ -26,7 +26,7 @@
   --muted-foreground: 30 5% 45%;
   --accent: 30 10% 88%;
   --accent-foreground: 30 8% 10%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 84% 52%;
   --destructive-foreground: 356 72% 98%;
   --border: 30 8% 85%;
   --input: 30 8% 85%;
@@ -76,6 +76,10 @@
   background: linear-gradient(135deg, #8833ff 0%, #6b21d4 100%);
 }
 
+.gradient-red {
+  background: linear-gradient(135deg, #C12F71 0%, #a52860 100%);
+}
+
 .gradient-text {
   color: #cccccc;
 }
@@ -106,6 +110,16 @@
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(136, 51, 255, 0.3);
+}
+
+.btn-destructive {
+  @apply gradient-red text-white;
+  transition: all 0.3s ease;
+}
+
+.btn-destructive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(193, 47, 113, 0.3);
 }
 
 .input-elegant {
