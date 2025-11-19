@@ -6,15 +6,15 @@ const OrientacoesPage = () => {
   const orientations = [
     {
       title: 'Uso Geral da Plataforma',
-      content: 'Explore todas as funcionalidades para otimizar sua rotina. Em caso de dúvidas, entre em contato com o suporte através do menu lateral. Entraremos em contato em breve para garantir sua melhor experiência com o IntimAI',
-    },
-    {
-      title: 'Status das Intimações e Precisão dos Dados',
-      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu Glossário para entender e acompanhar todo o ciclo de vida de suas intimações, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para o melhor funcionamento do sistema.',
+      content: 'Leia atentamente as orientações abaixo para explorar todas as funcionalidades do app e otimizar sua rotina. Em caso de dúvidas, entre em contato com o suporte através do menu lateral "Suporte". Entraremos em contato em breve para garantir sua melhor experiência com o IntimAI.',
     },
     {
       title: 'Conectividade da Instância do WhatsApp',
-      content: 'A conexão com a instância de WhatsApp da Delegacia é vital para o envio de novas intimações. Verifique periodicamente a conexão para assegurar que o serviço esteja ativo e funcionando corretamente.',
+      content: 'A conexão com a instância de WhatsApp da Delegacia é vital para o envio de novas intimações e manutenção das conversas ativas com os intimados. Nossa equipe faz um acompanhamento contínuo para que sua comexão nunca seja perdida. Mas, para evitar períodos de instabilidade, procure verificar periodicamente se o status da conexão está "Conectado", através do menu lateral "Conexão". Caso o status esteja "Desconectado", faça a leitura do QRCode que aparece na tela. Para acessar o local correto para a leitura do QRCode, encontre o menu "Dispositivos Conectados", no Whatsapp do celular oficial da Delegacia. Whatsapp Conectado é fundamental para que o sistema esteja ativo e funcionando corretamente.',
+    },
+    {
+      title: 'Status das Intimações e Precisão dos Dados',
+      content: 'Monitore regularmente o status das suas intimações para garantir que nenhuma ação seja perdida. Utilize o menu "Glossário" para entender e acompanhar todo o ciclo de vida de suas intimações, utilizando os recursos do sistema para cancelar, reativar e monitorar as etapas executadas pelo IntimAI nos bastidores. Sua participação nesse processo é essencial para que tenha o controle do que está acontecendo com suas intimações em tempo real e para o melhor funcionamento do sistema.',
     },
     {
       title: 'Consentimento e Direitos dos Titulares (LGPD)',

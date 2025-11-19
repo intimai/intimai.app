@@ -21,7 +21,7 @@ export function GlossarioPage() {
     },
     {
       status: 'Entregue',
-      description: 'A intimação já foi entregue ao intimado. Aguardamos a confirmação de identidade.',
+      description: 'A intimação jinicial já foi entregue ao intimado. Aguardamos a confirmação de identidade.',
       color: chartColors.entregues,
     },
     {

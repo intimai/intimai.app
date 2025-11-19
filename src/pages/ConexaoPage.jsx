@@ -24,16 +24,33 @@ const ConnectedState = ({ onDisconnect }) => (
   </div>
 );
 
-const DisconnectedState = ({ qrCode, onRetry }) => (
+const DisconnectedState = ({ onConnect, isConnecting }) => (
   <div className="text-center">
     <p className="text-yellow-500 font-bold text-lg mb-4">⚠️ Desconectado</p>
-    <p className="mb-4">Escaneie o QR Code para conectar.</p>
+    <p className="mb-4">Clique no botão abaixo para gerar o QR Code e conectar.</p>
+    <Button onClick={onConnect} disabled={isConnecting} className="mt-4 btn-primary w-full">
+      {isConnecting ? (
+        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando QR Code...</>
+      ) : (
+        'Conectar'
+      )}
+    </Button>
+  </div>
+);
+
+const QrCodeDisplay = ({ qrCode, onRetry, countdown }) => (
+  <div className="text-center">
+    <p className="text-yellow-500 font-bold text-lg mb-4">⚠️ Escaneie para Conectar</p>
+    <p className="mb-4">Abra o WhatsApp no seu celular e escaneie o código abaixo.</p>
     {qrCode ? (
       <div className="mt-4 p-4 bg-white rounded-lg inline-block border">
         <img src={qrCode} alt="QR Code para conectar ao WhatsApp" className="w-64 h-64" />
+        {countdown !== null && (
+          <p className="mt-4 text-2xl font-bold text-blue-600">Tempo: {countdown}s</p>
+        )}
       </div>
     ) : (
-      <p className="mt-2 text-sm text-gray-400">Gerando QR Code...</p>
+      <p className="mt-2 text-sm text-gray-400">Carregando QR Code...</p>
     )}
     <br />
     <Button onClick={onRetry} className="mt-4 btn-primary w-full">
@@ -61,32 +78,34 @@ const ErrorState = ({ onRetry }) => (
 export const ConexaoPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [connectionStatus, setConnectionStatus] = useState('loading'); // 'loading', 'connected', 'disconnected', 'error'
+  const [connectionStatus, setConnectionStatus] = useState('loading'); // 'loading', 'connected', 'disconnected', 'error', 'showing_qr'
   const [qrCode, setQrCode] = useState(null);
-  
+  const [isConnecting, setIsConnecting] = useState(false); // Para o estado de carregamento do botão "Conectar"
+  const [countdown, setCountdown] = useState(null);
+  const [countdownInterval, setCountdownInterval] = useState(null);
+
+
   // MODO DE SIMULAÇÃO: Altere para 'connected', 'disconnected', 'error' ou 'loading' para testar a UI.
   const [simulationMode] = useState(null); // Defina como null para usar a API real
 
-  const checkConnection = useCallback(async () => {
+  const checkConnection = useCallback(async (showLoading = true) => {
     if (simulationMode) {
-        setConnectionStatus(simulationMode);
-        if (simulationMode === 'disconnected') {
-            // QR Code de exemplo (base64 de uma imagem 1x1 pixel)
-            setQrCode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
-        }
-        return;
+      setConnectionStatus(simulationMode);
+      return;
     }
 
     if (!user?.delegaciaId) {
-        setConnectionStatus('error');
-        // toast({ variant: 'destructive', title: 'Erro', description: 'ID da delegacia não encontrado.' });
-        return;
+      setConnectionStatus('error');
+      return;
     }
 
-    setConnectionStatus('loading');
+    if (showLoading) {
+      setConnectionStatus('loading');
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('manage-evolution-instance', {
-        body: { delegaciaId: user.delegaciaId },
+        body: { delegaciaId: user.delegaciaId, action: 'status' }, // Ação para verificar o status
       });
 
       if (error) throw new Error(error.message);
@@ -94,32 +113,127 @@ export const ConexaoPage = () => {
       if (data.instance?.state === 'open') {
         setConnectionStatus('connected');
         setQrCode(null);
-      } else if (data.base64) { // Correção: A API retorna o QR code no campo 'base64'
-        setConnectionStatus('disconnected');
-        setQrCode(data.base64); // Correção: Usar data.base64
       } else {
-        // Se a resposta não for o esperado, consideramos um erro de status.
-        setConnectionStatus('error');
-        console.warn("Resposta inesperada da API:", data);
+        setConnectionStatus('disconnected');
       }
-
     } catch (err) {
       setConnectionStatus('error');
-      // toast({ variant: 'destructive', title: 'Erro ao verificar status', description: 'A função do servidor pode estar indisponível. Tente novamente mais tarde.' });
       console.error(err);
     }
-  }, [user, toast, simulationMode]);
+  }, [user, simulationMode]);
+
+  useEffect(() => {
+    if (!user?.delegaciaId) return;
+
+    const channel = supabase
+      .channel(`delegacia-status-change:${user.delegaciaId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'delegacias',
+          filter: `delegaciaId=eq.${user.delegaciaId}`, // CORREÇÃO: Usar a coluna correta
+        },
+        (payload) => {
+          const newStatus = payload.new.connection_status;
+
+          // CORREÇÃO: O backend já envia o status correto, não precisa mapear novamente.
+          if (newStatus && newStatus !== connectionStatus) {
+            setConnectionStatus(newStatus);
+
+            // Se o novo status for 'connected', limpa o QR code e o contador.
+            if (newStatus === 'connected') {
+              setQrCode(null);
+              if (countdownInterval) {
+                clearInterval(countdownInterval);
+                setCountdownInterval(null);
+              }
+              setCountdown(null);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.delegaciaId]);
+
+  const handleConnect = async () => {
+    setIsConnecting(true);
+    setQrCode(null); // Limpa o QR antigo
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+    }
+    setCountdown(null);
+
+
+    try {
+      // Agora, gera o QR Code
+      const { data, error } = await supabase.functions.invoke('manage-evolution-instance', {
+        body: { delegaciaId: user.delegaciaId, action: 'connect' }, // Ação para gerar QR Code
+      });
+
+      if (error) throw new Error(error.message);
+      
+      if (data.base64) {
+        setQrCode(data.base64);
+        setConnectionStatus('showing_qr');
+        setCountdown(60); // Inicia o contador
+
+        const interval = setInterval(() => {
+          setCountdown((prevCountdown) => {
+            if (prevCountdown === null || prevCountdown <= 1) {
+              clearInterval(interval);
+              setQrCode(null);
+              // Only revert to disconnected if we were in the process of showing the QR code.
+              // If we are already 'connected', do nothing.
+              setConnectionStatus((prevStatus) => 
+                prevStatus === 'showing_qr' ? 'disconnected' : prevStatus
+              );
+              return null;
+            }
+            return prevCountdown - 1;
+          });
+        }, 1000);
+        setCountdownInterval(interval);
+      } else {
+        setConnectionStatus('error');
+        toast({
+          variant: 'destructive', title: 'Erro', description: 'Não foi possível obter o QR Code.'
+        });
+        setConnectionStatus('disconnected'); // Volta ao estado desconectado
+      }
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Erro ao gerar QR Code', description: err.message });
+      setConnectionStatus('disconnected'); // Volta ao estado desconectado
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   useEffect(() => {
     checkConnection();
-    // O polling pode ser reativado quando a API estiver estável
-    // const intervalId = setInterval(checkConnection, 15000); 
-    // return () => clearInterval(intervalId);
   }, [checkConnection]);
 
-  const handleDisconnect = () => {
-    // Lógica para desconectar a ser implementada
-    toast({ title: "Função de desconexão ainda não implementada." });
+  const handleDisconnect = async () => {
+    setConnectionStatus('loading');
+    try {
+      const { error } = await supabase.functions.invoke('manage-evolution-instance', {
+        body: { delegaciaId: user.delegaciaId, action: 'disconnect' },
+      });
+
+      if (error) throw new Error(error.message);
+
+      toast({ title: 'Sucesso', description: 'A instância foi desconectada.' });
+      setConnectionStatus('disconnected');
+
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Erro ao desconectar', description: err.message });
+      checkConnection(false); // Re-verifica o status para ter certeza
+    }
   }
 
   const renderStatus = () => {
@@ -127,7 +241,9 @@ export const ConexaoPage = () => {
       case 'connected':
         return <ConnectedState onDisconnect={handleDisconnect} />;
       case 'disconnected':
-        return <DisconnectedState qrCode={qrCode} onRetry={checkConnection} />;
+        return <DisconnectedState onConnect={handleConnect} isConnecting={isConnecting} />;
+      case 'showing_qr':
+        return <QrCodeDisplay qrCode={qrCode} onRetry={handleConnect} countdown={countdown} />;
       case 'error':
         return <ErrorState onRetry={checkConnection} />;
       case 'loading':

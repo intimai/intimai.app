@@ -122,6 +122,8 @@ export function useIntimacoes() {
   const createIntimacao = async (intimacaoData) => {
     if (!user) throw new Error("Usuário não autenticado");
 
+    console.log("[useIntimacoes] Hook createIntimacao chamado com:", intimacaoData);
+
     const { data: userData, error: userError } = await supabase
       .from('usuarios')
       .select('delegaciaId') // Apenas a delegaciaId é necessária aqui
@@ -135,6 +137,7 @@ export function useIntimacoes() {
 
     if (!userData) throw new Error("Perfil do usuário não encontrado.");
 
+    console.log("[useIntimacoes] Invocando a Edge Function 'create-intimacao-with-check'...");
     // Invocar a Edge Function para criar a intimação com verificação de duplicidade
     const { data, error } = await supabase.functions.invoke('create-intimacao-with-check', {
       body: {
@@ -145,11 +148,13 @@ export function useIntimacoes() {
     });
 
     if (error) {
+      console.error("[useIntimacoes] Erro retornado pela Edge Function:", error);
       // A Edge Function agora lança um erro com um status 409 para duplicatas.
       // O corpo do erro contém a mensagem e os detalhes da duplicata.
       if (error.name === 'FunctionsHttpError' && error.context && error.context.status === 409) {
         const errorBody = await error.context.json();
         // Lança um erro customizado com os detalhes da duplicata
+        console.log("[useIntimacoes] Lançando erro de duplicidade.");
         throw {
           name: 'DuplicateIntimacaoError',
           message: errorBody.message, // ex: "DUPLICATE_FOUND"

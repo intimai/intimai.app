@@ -79,30 +79,42 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
 
     setIsSubmitting(true);
     try {
+      console.log("[CreateIntimacaoModal] Iniciando submissão...");
       const submissionData = formatSubmissionData(formData);
       await createIntimacao(submissionData);
       setSubmissionStatus(SUBMISSION_STATUS.SUCCESS);
-      if (onSuccess) {
-        onSuccess();
-      }
+      // A notificação de sucesso para a página pai agora é feita pelos botões de ação na tela de sucesso.
     } catch (error) {
       if (error.name === "DuplicateIntimacaoError") {
         setDuplicateDetails(error.details);
         setSubmissionStatus(SUBMISSION_STATUS.DUPLICATE);
       } else {
+        console.log("[CreateIntimacaoModal] Erro genérico detectado. Chamando handleIntimacaoError.");
         // Usa o hook de erro para outros tipos de falha
         handleIntimacaoError(error);
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, formatSubmissionData, createIntimacao, handleAuthError, onSuccess, handleIntimacaoError]);
+  }, [user, formatSubmissionData, createIntimacao, handleAuthError, handleIntimacaoError]);
 
-  const handleContinue = useCallback(() => {
+  const handleSuccessAndClose = useCallback(() => {
+    if (onSuccess) {
+      onSuccess();
+    }
     reset();
     setSubmissionStatus(SUBMISSION_STATUS.FORM);
     onClose();
-  }, [reset, onClose]);
+  }, [onSuccess, reset, onClose]);
+
+  const handleSuccessAndContinue = useCallback(() => {
+    if (onSuccess) {
+      onSuccess();
+    }
+    reset();
+    setSubmissionStatus(SUBMISSION_STATUS.FORM);
+    // Não fecha o modal, apenas reseta o formulário para uma nova intimação.
+  }, [onSuccess, reset]);
 
   const handleClose = useCallback(() => {
     reset();
@@ -295,13 +307,13 @@ export const CreateIntimacaoModal = ({ open: isOpen, onClose, onSuccess }) => {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={handleClose}
+                      onClick={handleSuccessAndClose}
                     >
                       Encerrar
                     </Button>
                     <Button
                       type="button"
-                      onClick={handleContinue}
+                      onClick={handleSuccessAndContinue}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
                       Registrar Nova Intimação
