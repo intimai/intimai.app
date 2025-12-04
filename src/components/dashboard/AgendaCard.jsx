@@ -8,7 +8,7 @@ import { useMultipleModals } from '@/hooks/useConfirmationModal';
 import AgendaItemHeader from './agenda/AgendaItemHeader';
 import AgendaModalsGroup from './agenda/AgendaModalsGroup';
 
-const AgendaItem = ({ intimacao, refetch }) => {
+const AgendaItem = ({ intimacao, refetch, fetchIntimacoes }) => {
   const { cancelIntimacao, marcarComoAusente, marcarComoCompareceu } = useIntimacoes();
 
   // Funções memoizadas para evitar re-renders infinitos
@@ -17,11 +17,12 @@ const AgendaItem = ({ intimacao, refetch }) => {
       await cancelIntimacao(intimacao.id);
       toast({ title: "Solicitação de cancelamento enviada." });
       if (refetch) refetch();
+      if (fetchIntimacoes) fetchIntimacoes(); // Atualiza a lista de intimações
     } catch (error) {
       toast({ title: "Erro ao solicitar cancelamento", variant: "destructive" });
       throw error;
     }
-  }, [cancelIntimacao, intimacao.id, refetch]);
+  }, [cancelIntimacao, intimacao.id, refetch, fetchIntimacoes]);
 
   const handleNoShow = useCallback(async () => {
     try {
@@ -113,7 +114,7 @@ const AgendaItem = ({ intimacao, refetch }) => {
   );
 };
 
-function AgendaDoDia({ agendamentos, refetch }) {
+function AgendaCard({ agendamentos, refetch, fetchIntimacoes }) {
   if (!agendamentos) {
     return <p>Carregando agendamentos...</p>;
   }
@@ -125,10 +126,10 @@ function AgendaDoDia({ agendamentos, refetch }) {
   return (
     <ul className="space-y-4">
       {agendamentos.map((intimacao) => (
-        <AgendaItem key={intimacao.id} intimacao={intimacao} refetch={refetch} />
+        <AgendaItem key={intimacao.id} intimacao={intimacao} refetch={refetch} fetchIntimacoes={fetchIntimacoes} />
       ))}
     </ul>
   );
 }
 
-export default AgendaDoDia;
+export default AgendaCard;

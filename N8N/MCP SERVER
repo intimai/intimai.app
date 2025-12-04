@@ -1,0 +1,264 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "intimacoes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Value', `Preencha com o intimacao_id`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        176
+      ],
+      "id": "6042cfc6-da69-4751-93c0-d86373c797dc",
+      "name": "consultaIntimacao",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iiTDGF3ajTrJc29X",
+          "name": "SupabaseIntimAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "intimacoes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', `Preencha com o intimacao_id`, 'string') }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues0_Field_Value', `Preencha com o status para o qual deseja alterar: \"agendada\" ou \"recusada\"`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        176
+      ],
+      "id": "6349784b-cb02-43a7-a719-3dc10dabffc7",
+      "name": "atualizaStatus",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iiTDGF3ajTrJc29X",
+          "name": "SupabaseIntimAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "intimacoes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', `Preencha com o intimacao_id`, 'string') }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "motivo",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues0_Field_Value', `Preencha com motivo \"Recusada pelo Intimado\" para situações em que o intimado se recuse explicitamente a agendar ou comparecer à delegacia no período sugerido. Preencha com motivo \"Desconhecido\" para situações em que a identidade do intimado não foi confirmada explicitamente por ele.`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        176
+      ],
+      "id": "c0eb38b1-5384-41a8-b99e-c7b4608c450b",
+      "name": "atualizaMotivo",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iiTDGF3ajTrJc29X",
+          "name": "SupabaseIntimAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "MCPSupabase"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        -176
+      ],
+      "id": "51dbfad8-e3f6-4d38-9f90-86618350c418",
+      "name": "MCP Server Trigger IntimAI",
+      "webhookId": "210e3179-4751-4774-9677-ef3e6f949177"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "intimacoes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', `Preencha com o intimacao_id`, 'string') }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "dataAgendada",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues0_Field_Value', \"Preencha com a data no formato `YYYY-MM-DD` (ex: `2025-11-23`) ou null\", 'string') }}"
+            },
+            {
+              "fieldId": "horaAgendada",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues1_Field_Value', \"Preencha com a hora no formato `HH:MM:SS` (ex: `14:30:00`) ou null\", 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        176
+      ],
+      "id": "fe0df837-3be8-4367-8fd5-b400121e51e6",
+      "name": "Atualiza_Data_Hora",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iiTDGF3ajTrJc29X",
+          "name": "SupabaseIntimAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "intimacoes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', `Preencha com o intimacao_id`, 'string') }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "dataAgendada",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('dataAgendada', 'Forneça null para limpar o campo.', 'string'), null }}"
+            },
+            {
+              "fieldId": "horaAgendada",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('horaAgendada', 'Forneça null para limpar o campo.', 'string'), null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        176
+      ],
+      "id": "a318bcda-be15-4133-b2e5-bbc2df8d25bb",
+      "name": "Limpa_Agenda",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iiTDGF3ajTrJc29X",
+          "name": "SupabaseIntimAI"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "consultaIntimacao": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger IntimAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizaStatus": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger IntimAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizaMotivo": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger IntimAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza_Data_Hora": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger IntimAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpa_Agenda": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger IntimAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "46afdc4408b12967d8a8ebd84fe9532888ffc6505ba874d4ba7406c1fc078ed9"
+  }
+}

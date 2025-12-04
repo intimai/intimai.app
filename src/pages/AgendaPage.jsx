@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export function AgendaPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { intimacoes, agendamentosDoDia, fetchAgendamentos } = useIntimacoes();
+  const { intimacoes, agendamentosDoDia, fetchAgendamentos, fetchIntimacoes } = useIntimacoes();
 
   const refetchAgendamentos = useCallback(() => {
     if (selectedDate) {
@@ -50,7 +50,7 @@ export function AgendaPage() {
             <div className="lg:col-span-3">
               <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Agendamentos do Dia</h2>
               <div className="max-h-[400px] overflow-y-auto pr-2 pt-2">
-                <AgendaCard selectedDate={selectedDate} agendamentos={agendamentosDoDia} refetch={refetchAgendamentos} />
+                <AgendaCard selectedDate={selectedDate} agendamentos={agendamentosDoDia} refetch={refetchAgendamentos} fetchIntimacoes={fetchIntimacoes} />
               </div>
             </div>
           </div>

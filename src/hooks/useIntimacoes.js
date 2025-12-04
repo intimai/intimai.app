@@ -3,6 +3,7 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { triggerWebhook } from '@/lib/webhookService';
 import { decryptSensitiveData } from '@/lib/encryptionService';
+import { toast } from '@/components/ui/use-toast';
 
 export function useIntimacoes() {
   const { user, supabaseClient } = useAuth();
@@ -191,53 +192,70 @@ export function useIntimacoes() {
       throw new Error("Usuário não autenticado");
     }
 
-    // 1. Criar nova intimação
-    const { data, error } = await supabase
-      .from('intimacoes')
-      .insert([{
-        ...novaIntimacaoData,
-        userId: user.id,
-        status: 'pendente',
-        reativada: false
-      }])
-      .select();
+    console.log("[useIntimacoes] Hook reativarIntimacao chamado com:", novaIntimacaoData);
 
-    if (error) {
-      console.error('Erro ao criar intimação reativada:', error);
-      throw error;
-    }
+    // Reutiliza a lógica de createIntimacao para garantir a criptografia e consistência
+    // A única diferença é que a reativação pode ter um comportamento de webhook diferente,
+    // mas a criação no banco de dados deve ser a mesma.
+    const novaIntimacao = await createIntimacao({
+      ...novaIntimacaoData,
+      // Adiciona um campo para indicar que é uma reativação, se necessário no futuro
+      // reativadaDe: intimacaoOriginal.id 
+    });
 
-    // 2. Atualizar intimação original como reativada
+    // A lógica de webhook já é tratada dentro de createIntimacao,
+    // mas se precisar de um webhook específico para reativação, pode ser adicionado aqui.
+    // Ex: await triggerWebhook("REATIVACAO", novaIntimacao, user);
+
+    // Atualiza o status da intimação original para 'reativada'
     const { error: updateError } = await supabase
-      .from("intimacoes")
-      .update({ reativada: true })
-      .eq("id", intimacaoOriginal.id);
+      .from('intimacoes')
+      .update({ status: 'reativada', reativada: true })
+      .eq('id', intimacaoOriginal.id);
 
     if (updateError) {
-      console.error("Erro ao atualizar intimação original:", updateError);
-      throw updateError;
+      console.error('Erro ao atualizar status da intimação original:', updateError);
+      // Considerar como lidar com este erro. A nova intimação foi criada.
+      // Pode ser necessário um processo de compensação ou apenas logar o erro.
     }
 
-    // 3. Disparar webhook de REATIVAÇÃO (não de criação)
-    if (data && data.length > 0) {
-      try {
-        // Enviando apenas a nova intimação, sem a original
-        await triggerWebhook("REATIVACAO", data[0], user);
-      } catch (webhookError) {
-        console.error("❌ Erro no webhook de reativação (intimação foi salva):", webhookError);
-        // Não lançamos erro aqui para não quebrar o fluxo
-      }
-    }
-
-    return data;
+    return novaIntimacao;
   };
 
-  const cancelIntimacao = async (intimacaoId) => {
+  const cancelIntimacao = async (intimacaoId, motivo) => {
     const intimacaoToCancel = intimacoes.find(i => i.id === intimacaoId);
     if (!intimacaoToCancel) {
       throw new Error("Intimação não encontrada para cancelamento.");
     }
 
+    // Atualiza o status localmente para uma resposta de UI mais rápida
+    setIntimacoes(currentIntimacoes =>
+      currentIntimacoes.map(i =>
+        i.id === intimacaoId ? { ...i, status: 'cancelada' } : i
+      )
+    );
+
+    try {
+      // Chama o webhook para orquestrar o cancelamento
+      await triggerWebhook("CANCELAMENTO", { ...intimacaoToCancel, motivoCancelamento: motivo }, user);
+      toast({ title: "Processo de cancelamento iniciado." });
+    } catch (error) {
+      console.error("Erro ao iniciar o processo de cancelamento:", error);
+      toast({ title: `Falha ao iniciar cancelamento: ${error.message}`, variant: "destructive" });
+      // Reverte a mudança de status local em caso de falha
+      setIntimacoes(currentIntimacoes =>
+        currentIntimacoes.map(i =>
+          i.id === intimacaoId ? { ...i, status: intimacaoToCancel.status } : i
+        )
+      );
+    }
+  };
+
+  const getDecryptedIntimacaoDetails = async (intimacaoId) => {
+    const intimacaoToCancel = intimacoes.find(i => i.id === intimacaoId);
+    if (!intimacaoToCancel) {
+      throw new Error("Intimação não encontrada para cancelamento.");
+    }
     const { data, error } = await supabase
       .from('intimacoes')
       .update({ cancelamentoEmAndamento: true })
