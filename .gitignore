@@ -99,6 +99,9 @@ storybook-static
 # Vercel
 .vercel
 
+# PWA dev distribution
+dev-dist
+
 # Vite build output
 dist
 

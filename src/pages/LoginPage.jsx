@@ -1,6 +1,7 @@
 import React from 'react';
 import { LoginForm } from '../components/auth/LoginForm';
 import { useTheme } from '../contexts/ThemeContext';
+import { InstallPWA } from '../components/InstallPWA';
 
 const LoginPage = () => {
   const { theme } = useTheme();
@@ -20,6 +21,7 @@ const LoginPage = () => {
       </div>
       
       <LoginForm />
+      <InstallPWA />
       
     </div>
   );
