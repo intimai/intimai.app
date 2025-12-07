@@ -1,20 +1,52 @@
 /* Define custom properties for the calendar component inside .rdp-root */
 .rdp-root {
-  width: 100%; /* Faz o calendário ocupar toda a largura do container */
-
-  /* Cores do calendário */
-  --rdp-accent-color: #8B5CF6; /* Cor roxa para elementos de destaque */
-  --rdp-background-color: #F3E8FF; /* Cor de fundo para o dia selecionado */
+  width: 100%;
+  --rdp-cell-size: 40px; /* Default size */
+  --rdp-accent-color: #8B5CF6;
   --rdp-background-color: var(--background);
   --rdp-color: hsl(var(--foreground));
   --rdp-button-color: hsl(var(--foreground));
+  margin: 0 auto; /* Centraliza */
+}
+
+/* Responsividade para telas muito pequenas */
+@media (max-width: 380px) {
+  .rdp-root {
+    --rdp-cell-size: 32px !important;
+    --rdp-caption-font-size: 0.9rem !important;
+  }
+  
+  .rdp-caption_label {
+    font-size: 0.9rem !important;
+  }
+  
+  .rdp-head_cell {
+    font-size: 0.75rem !important;
+    font-weight: normal;
+  }
+
+  /* Reduz padding lateral da navegação do mês */
+  .rdp-caption {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Suporte extremo para telas < 340px (iPhone SE 1st gen, Galaxy Fold fechado) */
+@media (max-width: 340px) {
+    .rdp-root {
+        --rdp-cell-size: 28px !important;
+    }
+    .rdp-head_cell {
+        font-size: 0.7rem !important;
+    }
 }
 
 .rdp-day_today:not(.rdp-day_selected) {
   font-weight: bold;
 }
 
-/* Style for the caption label (e.g., "May 2024") */
+/* Style for the caption label */
 .rdp-caption_label {
   font-weight: bold;
   color: var(--rdp-color);
@@ -29,16 +61,16 @@
 .day-scheduled::after {
     content: '';
     position: absolute;
-    bottom: 4px;
+    bottom: 2px;
     left: 50%;
     transform: translateX(-50%);
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background-color: theme('colors.chart.agendadas');
 }
 
-/* Increase font size on hover */
+/* Remove hover effect resizing */
 .rdp-day:hover {
-  font-size: calc(1em + 1pt);
+  background-color: var(--rdp-background-color); 
 }

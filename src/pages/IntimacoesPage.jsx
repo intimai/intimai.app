@@ -130,7 +130,7 @@ export function IntimacoesPage() {
 
         <Card>
           <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
@@ -140,13 +140,13 @@ export function IntimacoesPage() {
                   onChange={handleSearchChange}
                 />
               </div>
-              <Button onClick={handleOpenCreateModal} className="btn-primary flex-shrink-0">
+              <Button onClick={handleOpenCreateModal} className="btn-primary w-full md:w-auto flex-shrink-0">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Intimação
               </Button>
             </div>
-            <div className="mt-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex flex-wrap -mb-px gap-x-4">
+            <div className="mt-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto pb-1">
+              <div className="flex min-w-max gap-x-4 px-1">
                   {[
                     { key: 'todas', label: 'Todas' },
                     { key: 'pendentes', label: 'Pendentes' },

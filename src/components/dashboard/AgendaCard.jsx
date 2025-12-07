@@ -101,7 +101,7 @@ const AgendaItem = ({ intimacao, refetch, fetchIntimacoes }) => {
   return (
     <li className="bg-card p-4 rounded-lg border shadow transition-transform duration-300 hover:-translate-y-1">
       <CollapsibleCard header={renderHeader()} actions={renderActions()}>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
           <InfoItem icon={<FileText />} label="Documento" value={intimacao.documento} />
           <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} />
           <InfoItem icon={<FileType />} label="Tipo de Procedimento" value={intimacao.tipoProcedimento} />
@@ -133,3 +133,4 @@ function AgendaCard({ agendamentos, refetch, fetchIntimacoes }) {
 }
 
 export default AgendaCard;
+

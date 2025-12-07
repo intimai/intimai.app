@@ -15,13 +15,13 @@ const AgendaItemHeader = ({
 }) => {
   return (
     <div className="w-full">
-      <p className="font-bold flex items-center text-foreground">
-        <User className="w-4 h-4 mr-2 text-chart-agendadas" />
-        {intimacao.intimadoNome}
+      <p className="font-bold flex items-center text-foreground truncate">
+        <User className="w-4 h-4 mr-2 text-chart-agendadas flex-shrink-0" />
+        <span className="truncate">{intimacao.intimadoNome}</span>
       </p>
-      <div className="flex items-center justify-between mt-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-2 sm:mt-1 gap-2 sm:gap-0">
         <p className="text-sm text-muted-foreground flex items-center">
-          <Clock className="w-4 h-4 mr-2 text-chart-entregues" />
+          <Clock className="w-4 h-4 mr-2 text-chart-entregues flex-shrink-0" />
           {formatTime(intimacao.horaAgendada)}
         </p>
         <AgendaItemActions
@@ -36,3 +36,4 @@ const AgendaItemHeader = ({
 };
 
 export default AgendaItemHeader;
+

@@ -257,7 +257,7 @@ export const ConexaoPage = () => {
       <Card className="w-full">
         <CardContent className="p-4">
           <h2 className="text-2xl font-bold active-link-gradient italic">Conexão com o WhatsApp</h2>
-          <p className="text-gray-400 text-sm">Gerencie a conexão da sua delegacia com o WhatsApp para o envio de intimações.</p>
+          <p className="page-subtitle">Gerencie a conexão da sua delegacia com o WhatsApp para o envio de intimações.</p>
         </CardContent>
       </Card>
 

@@ -13,7 +13,7 @@ const AgendaItemActions = ({
   onComparecimentoChange 
 }) => {
   return (
-    <div className="flex items-center gap-4 justify-end" onClick={(e) => e.stopPropagation()}>
+    <div className="flex items-center gap-4 justify-end w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
       {intimacao.cancelamentoEmAndamento ? (
         <span className="text-xs text-muted-foreground italic w-full text-right block">
           Em cancelamento...

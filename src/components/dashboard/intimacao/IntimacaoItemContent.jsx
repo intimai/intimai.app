@@ -6,7 +6,7 @@ import { formatDate, formatTime, formatDateTime } from "@/lib/utils";
 export function IntimacaoItemContent({ intimacao }) {
   return (
     <>
-      <div className="grid grid-cols-3 gap-x-4 gap-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
         <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} />
         <InfoItem icon={<Calendar />} label="Data Agendada" value={formatDate(intimacao.dataAgendada)} />
         <InfoItem icon={<Clock />} label="Hora Agendada" value={formatTime(intimacao.horaAgendada)} />
