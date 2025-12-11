@@ -82,7 +82,20 @@ function extractRoutes(appJsxPath) {
 }
 
 function findReactFiles(dir) {
-  return fs.readdirSync(dir).map(item => path.join(dir, item));
+  let files = [];
+  const items = fs.readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      files = files.concat(findReactFiles(fullPath));
+    } else if (item.endsWith('.jsx') || item.endsWith('.js')) {
+      files.push(fullPath);
+    }
+  }
+  return files;
 }
 
 function extractHelmetData(content, filePath, routes) {
@@ -179,3 +192,4 @@ const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
   main();
 }
+
