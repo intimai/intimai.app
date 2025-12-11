@@ -60,16 +60,32 @@ export function InstallPWA() {
     return (
       <Button 
         onClick={onClick}
-        className="fixed bottom-4 right-4 z-50 shadow-lg animate-bounce"
+        className="fixed bottom-4 right-4 z-[9999] shadow-lg animate-bounce"
         variant="default"
       >
         <Download className="mr-2 h-4 w-4" />
-        Instalar App
+        Instalar Admin
       </Button>
     );
   }
 
-  // Lógica para iOS
+  // Debug mode: REMOVIDO para evitar confusão em produção
+  /* 
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return (
+        <Button 
+          onClick={() => alert('Este é um botão de teste. O evento PWA real ainda não disparou. Verifique o console.')}
+          className="fixed bottom-4 left-4 z-[9999] bg-yellow-600 hover:bg-yellow-700 opacity-50"
+          size="sm"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Debug PWA
+        </Button>
+      );
+  }
+  */
+
+  // Lógica para iOS (sempre mostra se for iOS e não estiver instalado, pois iOS não tem evento de prompt)
   if (isIOS) {
     return (
       <Dialog>

@@ -99,6 +99,9 @@ storybook-static
 # Vercel
 .vercel
 
+# IntimAI Admin (subprojeto não versionado aqui)
+intimai-admin/
+
 # PWA dev distribution
 dev-dist
 
