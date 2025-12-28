@@ -64,22 +64,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const getInitialSession = async () => {
-      console.log('[AuthContext] getInitialSession iniciado.');
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('[AuthContext] Sessão inicial obtida:', session ? 'Presente' : 'Nula');
-      await fetchSessionAndProfile(session);
-    };
-
-    getInitialSession();
-
+    setLoading(true);
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[AuthContext] onAuthStateChange: ${event}`);
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-      } else if (session) {
-        await fetchSessionAndProfile(session);
-      }
+      await fetchSessionAndProfile(session);
     });
 
     return () => {
