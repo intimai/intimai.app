@@ -7,6 +7,8 @@ import ConsentModal from '../components/auth/ConsentModal';
 const ProtectedRoute = () => {
   const { user, loading, needsConsent, acceptTerms } = useAuth();
   const [isAccepting, setIsAccepting] = useState(false);
+  
+  console.log('[ProtectedRoute] Renderizado. User:', user ? user.id : 'null', 'Loading:', loading);
 
   const handleAcceptTerms = async () => {
     setIsAccepting(true);
@@ -31,6 +33,7 @@ const ProtectedRoute = () => {
   };
 
   if (loading) {
+    console.log('[ProtectedRoute] Mostrando loading spinner.');
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <motion.div
@@ -43,9 +46,11 @@ const ProtectedRoute = () => {
   }
 
   if (!user) {
+    console.log('[ProtectedRoute] Usuário não logado. Redirecionando para /login.');
     return <Navigate to="/login" replace />;
   }
 
+  console.log('[ProtectedRoute] Usuário logado. Renderizando Outlet.');
   return (
     <>
       <Outlet />

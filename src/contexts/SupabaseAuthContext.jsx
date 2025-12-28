@@ -10,16 +10,24 @@ export const AuthProvider = ({ children }) => {
   const [needsConsent, setNeedsConsent] = useState(false);
 
   const fetchSessionAndProfile = async (session) => {
+    console.log('[AuthContext] fetchSessionAndProfile chamado. Session:', session ? 'Presente' : 'Nula');
     setLoading(true);
     try {
       if (session) {
+        console.log('[AuthContext] Buscando perfil do usuário:', session.user.id);
         const { data: userProfile, error: userProfileError } = await supabase
           .from('usuarios')
           .select('*')
           .eq('userId', session.user.id)
           .single();
 
+        if (userProfileError) console.error('[AuthContext] Erro ao buscar perfil:', userProfileError);
+        if (!userProfile) console.warn('[AuthContext] Perfil não encontrado');
+        if (userProfile && !userProfile.delegaciaId) console.warn('[AuthContext] Perfil sem delegaciaId');
+
         if (userProfileError || !userProfile || !userProfile.delegaciaId) {
+          console.log('[AuthContext] Perfil inválido. Fazendo logout e definindo user como null.');
+          await supabase.auth.signOut();
           setUser(null);
           return;
         }
@@ -31,6 +39,8 @@ export const AuthProvider = ({ children }) => {
           .single();
 
         if (delegaciaError || !delegaciaData) {
+          console.log('[AuthContext] Delegacia não encontrada ou erro. Fazendo logout e definindo user como null.');
+          await supabase.auth.signOut();
           setUser(null);
           return;
         }
@@ -46,22 +56,27 @@ export const AuthProvider = ({ children }) => {
         setNeedsConsent(needsTermsAcceptance);
         setUser(finalUser);
       } else {
+        console.log('[AuthContext] Sem sessão. Definindo user como null.');
         setUser(null);
       }
     } finally {
       setLoading(false);
+      console.log('[AuthContext] Loading definido como false.');
     }
   };
 
   useEffect(() => {
     const getInitialSession = async () => {
+      console.log('[AuthContext] getInitialSession iniciado.');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('[AuthContext] Sessão inicial obtida:', session ? 'Presente' : 'Nula');
       await fetchSessionAndProfile(session);
     };
 
     getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`[AuthContext] onAuthStateChange: ${event}`);
       if (event === 'SIGNED_OUT') {
         setUser(null);
       } else if (session) {

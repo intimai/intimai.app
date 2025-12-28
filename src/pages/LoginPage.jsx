@@ -6,6 +6,8 @@ import { InstallPWA } from '../components/InstallPWA';
 const LoginPage = () => {
   const { theme } = useTheme();
 
+  console.log('[LoginPage] Renderizado.');
+
   return (
     <div className={`flex flex-col items-center justify-center min-h-screen bg-background p-4 ${theme === 'light' ? 'space-y-2' : 'space-y-8'}`}>
       <div className="text-center">

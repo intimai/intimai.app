@@ -32,6 +32,7 @@ import TermosDeUsoPage from './pages/TermosDeUsoPage';
 
 const AppContent = () => {
   const { user } = useAuth();
+  console.log('[AppContent] Renderizado. User:', user ? user.id : 'null');
 
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
