@@ -23,9 +23,9 @@ import { PerfilPage } from './pages/PerfilPage';
 import { ConexaoPage } from './pages/ConexaoPage';
 import SuportePage from './pages/SuportePage';
 import PoliticaDePrivacidadePage from './pages/PoliticaDePrivacidadePage';
-import PrivacidadePublicaPage from './pages/lgpd/PrivacidadePublicaPage';
-import TransparenciaPage from './pages/lgpd/TransparenciaPage';
-import DireitosTitularesPage from './pages/lgpd/DireitosTitularesPage';
+import PrivacidadePublicaPage from './pages/PrivacidadePublicaPage';
+import TransparenciaPage from './pages/TransparenciaPage';
+import DireitosTitularesPage from './pages/DireitosTitularesPage';
 import TermosDeUsoPage from './pages/TermosDeUsoPage';
 
 
