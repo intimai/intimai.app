@@ -26,8 +26,7 @@ export const AuthProvider = ({ children }) => {
         if (userProfile && !userProfile.delegaciaId) console.warn('[AuthContext] Perfil sem delegaciaId');
 
         if (userProfileError || !userProfile || !userProfile.delegaciaId) {
-          console.log('[AuthContext] Perfil inválido. Fazendo logout e definindo user como null.');
-          await supabase.auth.signOut();
+          console.log('[AuthContext] Perfil inválido. Definindo user como null.');
           setUser(null);
           return;
         }
@@ -39,8 +38,7 @@ export const AuthProvider = ({ children }) => {
           .single();
 
         if (delegaciaError || !delegaciaData) {
-          console.log('[AuthContext] Delegacia não encontrada ou erro. Fazendo logout e definindo user como null.');
-          await supabase.auth.signOut();
+          console.log('[AuthContext] Delegacia não encontrada ou erro. Definindo user como null.');
           setUser(null);
           return;
         }
