@@ -54,8 +54,9 @@ export function RegisterForm() {
       const fetchDelegacias = async () => {
         const { data, error } = await supabase
           .from('delegacias')
-          .select('*')
-          .eq('estadoId', formData.estadoId);
+          .select('"delegaciaId", nome, endereco, telefone, "estadoId", "limiteUsuarios"')
+          .eq('"estadoId"', formData.estadoId);
+
         if (error) {
           toast({ title: "Erro ao carregar delegacias", variant: "destructive" });
         } else {
@@ -113,12 +114,16 @@ export function RegisterForm() {
       
       const fullEmail = `${formData.emailPrefix}${selectedEstado.dominio.startsWith('@') ? '' : '@'}${selectedEstado.dominio}`;
 
-      const { error } = await signUp(fullEmail, formData.password, {
+      const { error } = await signUp(
+        fullEmail,
+        formData.password,
+        {
           nome: formData.nomeCompleto,
           delegado_responsavel: formData.delegadoResponsavel,
           estado_id: parseInt(formData.estadoId),
           delegacia_id: parseInt(formData.delegaciaId),
-      });
+        }
+      );
 
       if (!error) {
         toast({

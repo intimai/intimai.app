@@ -41,7 +41,7 @@ const DisconnectedState = ({ onConnect, isConnecting }) => (
 const QrCodeDisplay = ({ qrCode, onRetry, countdown }) => (
   <div className="text-center">
     <p className="text-yellow-500 font-bold text-lg mb-4">⚠️ Escaneie para Conectar</p>
-    <p className="mb-4">Abra o WhatsApp no seu celular e escaneie o código abaixo.</p>
+    <p className="mb-4">Abra o WhatsApp no celular da delegacia e escaneie o código abaixo.</p>
     {qrCode ? (
       <div className="mt-4 p-4 bg-white rounded-lg inline-block border">
         <img src={qrCode} alt="QR Code para conectar ao WhatsApp" className="w-64 h-64" />
