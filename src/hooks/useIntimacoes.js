@@ -280,24 +280,44 @@ export function useIntimacoes() {
   };
 
   const marcarComoAusente = async (intimacaoId) => {
+    // Garante que o ID está no formato correto
+    const id = intimacaoId?.toString();
+    
+    if (!id) {
+      throw new Error('ID da intimação é obrigatório');
+    }
+
     const { data, error } = await supabase
       .from('intimacoes')
       .update({ status: 'ausente' })
-      .eq('id', intimacaoId)
+      .eq('id', id)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erro ao marcar como ausente:', error);
+      throw error;
+    }
     return data;
   };
 
   const marcarComoCompareceu = async (intimacaoId) => {
+    // Garante que o ID está no formato correto
+    const id = intimacaoId?.toString();
+    
+    if (!id) {
+      throw new Error('ID da intimação é obrigatório');
+    }
+
     const { data, error } = await supabase
       .from('intimacoes')
       .update({ status: 'finalizada' })
-      .eq('id', intimacaoId)
+      .eq('id', id)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erro ao marcar como compareceu:', error);
+      throw error;
+    }
     return data;
   };
 

@@ -16,7 +16,7 @@ const navItems = [
   { name: 'Glossário', icon: Calendar, path: '/glossario' },
   { name: 'Orientações', icon: XCircle, path: '/orientacoes' },
   { name: 'Perfil', icon: UserCircle, path: '/perfil' },
-  { name: 'Conexão', icon: MessageCircle, path: '/conexao' },
+  // { name: 'Conexão', icon: MessageCircle, path: '/conexao' }, // Desabilitado temporariamente
   { name: 'Suporte', icon: HelpCircle, path: '/suporte' },
 ];
 

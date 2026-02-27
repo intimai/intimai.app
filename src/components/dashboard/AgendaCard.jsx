@@ -26,23 +26,35 @@ const AgendaItem = ({ intimacao, refetch, fetchIntimacoes }) => {
 
   const handleNoShow = useCallback(async () => {
     try {
+      console.log('Marcando como ausente, ID:', intimacao.id);
       await marcarComoAusente(intimacao.id);
       toast({ title: "Intimação marcada como 'Não Compareceu'." });
       if (refetch) refetch();
     } catch (error) {
-      toast({ title: "Erro ao marcar como 'Não Compareceu'", variant: "destructive" });
-      throw error;
+      console.error('Erro ao marcar como ausente:', error);
+      toast({ 
+        title: "Erro ao marcar como 'Não Compareceu'", 
+        description: error.message || 'Verifique as permissões ou tente novamente.',
+        variant: "destructive" 
+      });
+      // Não propaga o erro para evitar loops
     }
   }, [marcarComoAusente, intimacao.id, refetch]);
 
   const handleCompareceu = useCallback(async () => {
     try {
+      console.log('Marcando como compareceu, ID:', intimacao.id);
       await marcarComoCompareceu(intimacao.id);
       toast({ title: "Intimação marcada como 'Compareceu'." });
       if (refetch) refetch();
     } catch (error) {
-      toast({ title: "Erro ao marcar como 'Compareceu'", variant: "destructive" });
-      throw error;
+      console.error('Erro ao marcar como compareceu:', error);
+      toast({ 
+        title: "Erro ao marcar como 'Compareceu'", 
+        description: error.message || 'Verifique as permissões ou tente novamente.',
+        variant: "destructive" 
+      });
+      // Não propaga o erro para evitar loops
     }
   }, [marcarComoCompareceu, intimacao.id, refetch]);
 
@@ -133,4 +145,4 @@ function AgendaCard({ agendamentos, refetch, fetchIntimacoes }) {
 }
 
 export default AgendaCard;
-
+

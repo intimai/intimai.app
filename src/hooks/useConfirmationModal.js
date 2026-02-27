@@ -87,7 +87,9 @@ export function useMultipleModals(modalConfigs = {}) {
     } catch (error) {
       console.error(`Erro na confirmação do modal ${modalName}:`, error);
       setLoadingStates(prev => ({ ...prev, [modalName]: false }));
-      throw error;
+      // Fecha o modal mesmo com erro para evitar loops
+      setModals(prev => ({ ...prev, [modalName]: false }));
+      // Não propaga o erro - deixa o componente lidar com isso
     }
   }, [modalConfigs]);
 
