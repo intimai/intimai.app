@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { X, RefreshCcw } from 'lucide-react';
+import { X, RefreshCcw, MessageSquare } from 'lucide-react';
 import CollapsibleCard from '../ui/CollapsibleCard';
 import StatusLabel from '../ui/StatusLabel';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { useMultipleModals } from '@/hooks/useConfirmationModal';
 import { IntimacaoItemHeader } from './intimacao/IntimacaoItemHeader';
 import { IntimacaoItemContent } from './intimacao/IntimacaoItemContent';
 import { IntimacaoModalsGroup } from './intimacao/IntimacaoModalsGroup';
+import { ChatHistoryModal } from './ChatHistoryModal';
 
 export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
   // Função memoizada para evitar re-renders
@@ -21,6 +22,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
 
   // Estados para modais customizados (ReativarIntimacaoModal)
   const [isReativarModalOpen, setIsReativarModalOpen] = React.useState(false);
+  const [isChatModalOpen, setIsChatModalOpen] = React.useState(false);
 
   // PRESERVA EXATAMENTE as mesmas funções
   const handleCancelClick = () => {
@@ -90,7 +92,25 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
       </div>
       <div className="flex justify-between items-center mt-1">
         <p className="text-xs text-gray-400">Doc: {intimacao.documento}</p>
-        {renderActionsContent()}
+        <div className="flex items-center gap-2">
+          {/* Botão Ver Chat */}
+          {intimacao.telefone && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-accent rounded-md p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsChatModalOpen(true);
+              }}
+              title="Ver histórico de conversa"
+            >
+              <MessageSquare className="w-4 h-4 text-blue-500" />
+              <span className="text-xs">Chat</span>
+            </Button>
+          )}
+          {renderActionsContent()}
+        </div>
       </div>
     </div>
   );
@@ -113,6 +133,13 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         isReativarModalOpen={isReativarModalOpen}
         onReativarModalClose={() => setIsReativarModalOpen(false)}
         onReativarSuccess={onReativar}
+      />
+
+      <ChatHistoryModal
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+        sessionId={intimacao.telefone}
+        intimadoNome={intimacao.intimadoNome}
       />
     </>
   );
