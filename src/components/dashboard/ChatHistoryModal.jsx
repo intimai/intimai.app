@@ -2,23 +2,42 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Loader2, User, Bot } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
-export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome }) {
+export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome, intimacaoId }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState(null); // 'chat' | 'n8n'
 
   useEffect(() => {
-    if (isOpen && sessionId) {
+    if (isOpen && (intimacaoId != null || sessionId)) {
       fetchMessages();
     }
-  }, [isOpen, sessionId]);
+  }, [isOpen, intimacaoId, sessionId]);
 
   const fetchMessages = async () => {
     setLoading(true);
+    setSource(null);
     try {
-      // Garante que só teremos números
-      const cleanSessionId = sessionId.replace(/\D/g, '');
+      // Preferência: tabela chat por id da intimação (mensagem, origem, id_intimacao)
+      if (intimacaoId != null) {
+        const { data, error } = await supabase
+          .from('chat')
+          .select('id, mensagem, origem, id_intimacao, created_at')
+          .eq('id_intimacao', intimacaoId)
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+        setMessages(data || []);
+        setSource('chat');
+        return;
+      }
+
+      // Fallback: histórico n8n por session_id (telefone)
+      const cleanSessionId = (sessionId || '').replace(/\D/g, '');
+      if (!cleanSessionId) {
+        setMessages([]);
+        return;
+      }
 
       const { data, error } = await supabase
         .from('n8n_chat_histories_intimacoes')
@@ -28,22 +47,48 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome }) {
 
       if (error) throw error;
       setMessages(data || []);
+      setSource('n8n');
     } catch (error) {
       console.error('Erro ao buscar histórico de chat:', error);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderMessage = (msg) => {
-    const messageData = msg.message;
-    const isAI = messageData.type === 'ai';
-    const content = messageData.content;
+  const renderMessageFromChat = (msg) => (
+    <div
+      key={msg.id}
+      className={`flex gap-3 mb-4 ${msg.origem === 'intimai' ? 'justify-start' : 'justify-end'}`}
+    >
+      {msg.origem === 'intimai' && (
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          <Bot className="w-5 h-5 text-primary" />
+        </div>
+      )}
+      <div
+        className={`max-w-[70%] rounded-lg px-4 py-2 ${
+          msg.origem === 'intimai'
+            ? 'bg-muted text-foreground'
+            : 'bg-primary text-primary-foreground'
+        }`}
+      >
+        <p className="text-sm whitespace-pre-wrap break-words">{msg.mensagem}</p>
+      </div>
+      {msg.origem === 'intimado' && (
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+          <User className="w-5 h-5 text-primary-foreground" />
+        </div>
+      )}
+    </div>
+  );
 
-    // Ignora mensagens de sistema como "identidade_confirmada"
-    if (content === 'identidade_confirmada' || !content) {
-      return null;
-    }
+  const renderMessageFromN8n = (msg) => {
+    const messageData = msg.message;
+    const isAI = messageData?.type === 'ai';
+    const content = messageData?.content;
+
+    if (content === 'identidade_confirmada' || !content) return null;
 
     return (
       <div
@@ -55,15 +100,13 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome }) {
             <Bot className="w-5 h-5 text-primary" />
           </div>
         )}
-
         <div
-          className={`max-w-[70%] rounded-lg px-4 py-2 ${isAI
-            ? 'bg-muted text-foreground'
-            : 'bg-primary text-primary-foreground'
-            }`}
+          className={`max-w-[70%] rounded-lg px-4 py-2 ${
+            isAI ? 'bg-muted text-foreground' : 'bg-primary text-primary-foreground'
+          }`}
         >
           <p className="text-sm whitespace-pre-wrap break-words">{content}</p>
-          {messageData.additional_kwargs?.contexto && (
+          {messageData?.additional_kwargs?.contexto && (
             <div className="mt-2 pt-2 border-t border-border/50">
               <p className="text-xs opacity-70">
                 Intimação ID: {messageData.additional_kwargs.contexto.intimacao_id}
@@ -71,7 +114,6 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome }) {
             </div>
           )}
         </div>
-
         {!isAI && (
           <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
             <User className="w-5 h-5 text-primary-foreground" />
@@ -80,6 +122,9 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome }) {
       </div>
     );
   };
+
+  const renderMessage = (msg) =>
+    source === 'chat' ? renderMessageFromChat(msg) : renderMessageFromN8n(msg);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

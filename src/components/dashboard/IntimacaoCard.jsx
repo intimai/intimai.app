@@ -140,6 +140,7 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         onClose={() => setIsChatModalOpen(false)}
         sessionId={intimacao.telefone}
         intimadoNome={intimacao.intimadoNome}
+        intimacaoId={intimacao.id}
       />
     </>
   );
