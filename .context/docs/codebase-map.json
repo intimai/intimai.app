@@ -1,0 +1,922 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-14T19:49:53.304Z",
+  "stack": {
+    "primaryLanguage": "typescript",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "frameworks": [],
+    "buildTools": [
+      "vite"
+    ],
+    "testFrameworks": [],
+    "packageManager": "npm",
+    "isMonorepo": false,
+    "hasDocker": false,
+    "hasCI": false
+  },
+  "structure": {
+    "totalFiles": 160,
+    "topDirectories": [
+      {
+        "name": "ANALISE_TECNICA.md",
+        "fileCount": 1
+      },
+      {
+        "name": "backup_supabase_guide.md",
+        "fileCount": 1
+      },
+      {
+        "name": "configurar_email_confirmacao.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "configurar_templates_email_supabase.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "consulta_duplicada_edgeFunction.ts",
+        "fileCount": 1
+      },
+      {
+        "name": "criar_tabela_email_templates.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "CRIPTOGRAFIA_SETUP.md",
+        "fileCount": 1
+      },
+      {
+        "name": "dev-dist",
+        "fileCount": 2
+      },
+      {
+        "name": "er.name",
+        "fileCount": 1
+      },
+      {
+        "name": "handle-webhook-corrected.ts",
+        "fileCount": 1
+      },
+      {
+        "name": "index.html",
+        "fileCount": 1
+      },
+      {
+        "name": "INSTALL_CHAT_FEATURE.md",
+        "fileCount": 1
+      },
+      {
+        "name": "LGPD_E_SEGURANCA.md",
+        "fileCount": 1
+      },
+      {
+        "name": "LOGS_CONFIRMACAO_IDENTIDADE.md",
+        "fileCount": 1
+      },
+      {
+        "name": "N8N",
+        "fileCount": 3
+      },
+      {
+        "name": "package-lock.json",
+        "fileCount": 1
+      },
+      {
+        "name": "package.json",
+        "fileCount": 1
+      },
+      {
+        "name": "plugins",
+        "fileCount": 4
+      },
+      {
+        "name": "postcss.config.js",
+        "fileCount": 1
+      },
+      {
+        "name": "Prd App Intimacoes.pdf",
+        "fileCount": 1
+      },
+      {
+        "name": "preparar_ambiente_testes.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "public",
+        "fileCount": 14
+      },
+      {
+        "name": "rc",
+        "fileCount": 1
+      },
+      {
+        "name": "REGRAS_DE_NEGOCIO.md",
+        "fileCount": 1
+      },
+      {
+        "name": "ROADMAP_E_ANALISE_DE_ESCALABILIDADE.md",
+        "fileCount": 1
+      },
+      {
+        "name": "scripts_consolidado_supabase.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "SETUP_CONEXAO_WHATSAPP.md",
+        "fileCount": 1
+      },
+      {
+        "name": "src",
+        "fileCount": 97
+      },
+      {
+        "name": "supabase",
+        "fileCount": 9
+      },
+      {
+        "name": "supabase_cron_job.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "supabase-schema-utqtxfgmartcznacksnm.png",
+        "fileCount": 1
+      },
+      {
+        "name": "tailwind.config.js",
+        "fileCount": 1
+      },
+      {
+        "name": "tools",
+        "fileCount": 1
+      },
+      {
+        "name": "vercel.json",
+        "fileCount": 1
+      },
+      {
+        "name": "verificar_rls_supabase.sql",
+        "fileCount": 1
+      },
+      {
+        "name": "vite.config.js",
+        "fileCount": 1
+      },
+      {
+        "name": "vitest.config.js",
+        "fileCount": 1
+      }
+    ],
+    "languageDistribution": [
+      {
+        "extension": ".jsx",
+        "count": 73
+      },
+      {
+        "extension": ".js",
+        "count": 32
+      },
+      {
+        "extension": ".md",
+        "count": 11
+      },
+      {
+        "extension": ".ts",
+        "count": 11
+      },
+      {
+        "extension": ".png",
+        "count": 9
+      },
+      {
+        "extension": ".sql",
+        "count": 7
+      },
+      {
+        "extension": ".json",
+        "count": 3
+      },
+      {
+        "extension": ".html",
+        "count": 3
+      },
+      {
+        "extension": ".css",
+        "count": 3
+      },
+      {
+        "extension": ".pdf",
+        "count": 1
+      }
+    ]
+  },
+  "architecture": {
+    "layers": [
+      {
+        "name": "Repositories",
+        "description": "Data access and persistence",
+        "directories": [
+          "supabase\\functions\\encrypt-existing-data",
+          "src\\data"
+        ],
+        "symbolCount": 1,
+        "dependsOn": []
+      },
+      {
+        "name": "Config",
+        "description": "Configuration and constants",
+        "directories": [
+          ".",
+          "src\\constants",
+          "src\\config",
+          "plugins\\visual-editor"
+        ],
+        "symbolCount": 1,
+        "dependsOn": []
+      },
+      {
+        "name": "Services",
+        "description": "Business logic and orchestration",
+        "directories": [
+          "src\\lib",
+          "src\\lib\\__tests__"
+        ],
+        "symbolCount": 6,
+        "dependsOn": []
+      },
+      {
+        "name": "Utils",
+        "description": "Shared utilities and helpers",
+        "directories": [
+          "src\\lib"
+        ],
+        "symbolCount": 1,
+        "dependsOn": []
+      },
+      {
+        "name": "Controllers",
+        "description": "Request handling and routing",
+        "directories": [
+          "src\\hooks",
+          "src\\api",
+          "src\\routes",
+          "src\\components\\session"
+        ],
+        "symbolCount": 1,
+        "dependsOn": [
+          "Components"
+        ]
+      },
+      {
+        "name": "Components",
+        "description": "UI components and views",
+        "directories": [
+          "src\\components\\ui",
+          "src\\pages",
+          "src\\components",
+          "src\\components\\session",
+          "src\\components\\dashboard",
+          "src\\components\\auth",
+          "src\\components\\dashboard\\intimacao",
+          "src\\components\\dashboard\\agenda"
+        ],
+        "symbolCount": 11,
+        "dependsOn": []
+      }
+    ],
+    "patterns": [],
+    "entryPoints": [
+      "supabase\\functions\\manage-evolution-instance\\index.ts",
+      "supabase\\functions\\lgpd-webhook\\index.ts",
+      "supabase\\functions\\handle-webhook\\index.ts",
+      "supabase\\functions\\get-decrypted-intimacao-details\\index.ts",
+      "supabase\\functions\\encrypt-existing-data\\index.ts",
+      "supabase\\functions\\dynamic-action\\index.ts",
+      "supabase\\functions\\create-intimacao-with-check\\index.ts",
+      "supabase\\functions\\check-telefone\\index.ts",
+      "supabase\\functions\\cancel-expired-intimations\\index.ts",
+      "src\\constants\\index.js",
+      "src\\main.jsx"
+    ]
+  },
+  "symbols": {
+    "classes": [],
+    "interfaces": [
+      {
+        "name": "Payload",
+        "kind": "interface",
+        "file": "supabase\\functions\\lgpd-webhook\\index.ts",
+        "line": 9,
+        "exported": false
+      },
+      {
+        "name": "WebhookBody",
+        "kind": "interface",
+        "file": "supabase\\functions\\lgpd-webhook\\index.ts",
+        "line": 14,
+        "exported": false
+      }
+    ],
+    "functions": [
+      {
+        "name": "AgendaCalendar",
+        "kind": "function",
+        "file": "src\\components\\dashboard\\AgendaCalendar.jsx",
+        "line": 8,
+        "exported": true
+      },
+      {
+        "name": "AgendaPage",
+        "kind": "function",
+        "file": "src\\pages\\AgendaPage.jsx",
+        "line": 9,
+        "exported": true
+      },
+      {
+        "name": "cn",
+        "kind": "function",
+        "file": "src\\lib\\utils.js",
+        "line": 4,
+        "exported": true
+      },
+      {
+        "name": "decryptSensitiveData",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 30,
+        "exported": true
+      },
+      {
+        "name": "encryptSensitiveData",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 7,
+        "exported": true
+      },
+      {
+        "name": "getPopupHTMLTemplate",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\visual-editor-config.js",
+        "line": 79,
+        "exported": true
+      },
+      {
+        "name": "inlineEditDevPlugin",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\vite-plugin-edit-mode.js",
+        "line": 9,
+        "exported": true
+      },
+      {
+        "name": "inlineEditPlugin",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\vite-plugin-react-inline-editor.js",
+        "line": 49,
+        "exported": true
+      },
+      {
+        "name": "InstallPWA",
+        "kind": "function",
+        "file": "src\\components\\InstallPWA.jsx",
+        "line": 13,
+        "exported": true
+      },
+      {
+        "name": "IntimacaoItemContent",
+        "kind": "function",
+        "file": "src\\components\\dashboard\\intimacao\\IntimacaoItemContent.jsx",
+        "line": 6,
+        "exported": true
+      },
+      {
+        "name": "isEncrypted",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 140,
+        "exported": true
+      },
+      {
+        "name": "LoginForm",
+        "kind": "function",
+        "file": "src\\components\\auth\\LoginForm.jsx",
+        "line": 12,
+        "exported": true
+      },
+      {
+        "name": "maskSensitiveData",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 161,
+        "exported": true
+      },
+      {
+        "name": "PerfilPage",
+        "kind": "function",
+        "file": "src\\pages\\PerfilPage.jsx",
+        "line": 10,
+        "exported": true
+      },
+      {
+        "name": "ThemeProvider",
+        "kind": "function",
+        "file": "src\\contexts\\ThemeContext.jsx",
+        "line": 5,
+        "exported": true
+      },
+      {
+        "name": "ThemeToggle",
+        "kind": "function",
+        "file": "src\\components\\ThemeToggle.jsx",
+        "line": 6,
+        "exported": true
+      },
+      {
+        "name": "UpdatePasswordPage",
+        "kind": "function",
+        "file": "src\\components\\auth\\UpdatePasswordPage.jsx",
+        "line": 12,
+        "exported": true
+      },
+      {
+        "name": "useConfirmationModal",
+        "kind": "function",
+        "file": "src\\hooks\\useConfirmationModal.js",
+        "line": 11,
+        "exported": true
+      },
+      {
+        "name": "useDebounce",
+        "kind": "function",
+        "file": "src\\hooks\\useDebounce.js",
+        "line": 11,
+        "exported": true
+      },
+      {
+        "name": "useIntimacoes",
+        "kind": "function",
+        "file": "src\\hooks\\useIntimacoes.js",
+        "line": 8,
+        "exported": true
+      },
+      {
+        "name": "useMultipleModals",
+        "kind": "function",
+        "file": "src\\hooks\\useConfirmationModal.js",
+        "line": 52,
+        "exported": true
+      },
+      {
+        "name": "useToast",
+        "kind": "function",
+        "file": "src\\components\\ui\\use-toast.js",
+        "line": 68,
+        "exported": true
+      },
+      {
+        "name": "Badge",
+        "kind": "function",
+        "file": "src\\components\\ui\\badge.jsx",
+        "line": 30,
+        "exported": false
+      },
+      {
+        "name": "checkTagNameEditable",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\vite-plugin-react-inline-editor.js",
+        "line": 32,
+        "exported": false
+      },
+      {
+        "name": "cleanContent",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 30,
+        "exported": false
+      },
+      {
+        "name": "cleanText",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 37,
+        "exported": false
+      },
+      {
+        "name": "createDisabledTooltip",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\edit-mode-script.js",
+        "line": 210,
+        "exported": false
+      },
+      {
+        "name": "createHmac",
+        "kind": "function",
+        "file": "supabase\\functions\\create-intimacao-with-check\\index.ts",
+        "line": 15,
+        "exported": false
+      },
+      {
+        "name": "createHmac",
+        "kind": "function",
+        "file": "supabase\\functions\\check-telefone\\index.ts",
+        "line": 24,
+        "exported": false
+      },
+      {
+        "name": "createPopup",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\edit-mode-script.js",
+        "line": 40,
+        "exported": false
+      },
+      {
+        "name": "decrypt",
+        "kind": "function",
+        "file": "handle-webhook-corrected.ts",
+        "line": 52,
+        "exported": false
+      },
+      {
+        "name": "decrypt",
+        "kind": "function",
+        "file": "supabase\\functions\\handle-webhook\\index.ts",
+        "line": 41,
+        "exported": false
+      },
+      {
+        "name": "decrypt",
+        "kind": "function",
+        "file": "supabase\\functions\\get-decrypted-intimacao-details\\index.ts",
+        "line": 5,
+        "exported": false
+      },
+      {
+        "name": "decrypt",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 97,
+        "exported": false
+      },
+      {
+        "name": "decryptSensitiveData",
+        "kind": "function",
+        "file": "handle-webhook-corrected.ts",
+        "line": 114,
+        "exported": false
+      },
+      {
+        "name": "decryptSensitiveData",
+        "kind": "function",
+        "file": "supabase\\functions\\handle-webhook\\index.ts",
+        "line": 92,
+        "exported": false
+      },
+      {
+        "name": "disableEditMode",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\edit-mode-script.js",
+        "line": 292,
+        "exported": false
+      },
+      {
+        "name": "enableEditMode",
+        "kind": "function",
+        "file": "plugins\\visual-editor\\edit-mode-script.js",
+        "line": 267,
+        "exported": false
+      },
+      {
+        "name": "encrypt",
+        "kind": "function",
+        "file": "handle-webhook-corrected.ts",
+        "line": 13,
+        "exported": false
+      },
+      {
+        "name": "encrypt",
+        "kind": "function",
+        "file": "supabase\\functions\\handle-webhook\\index.ts",
+        "line": 11,
+        "exported": false
+      },
+      {
+        "name": "encrypt",
+        "kind": "function",
+        "file": "supabase\\functions\\encrypt-existing-data\\index.ts",
+        "line": 11,
+        "exported": false
+      },
+      {
+        "name": "encrypt",
+        "kind": "function",
+        "file": "src\\lib\\encryptionService.js",
+        "line": 57,
+        "exported": false
+      },
+      {
+        "name": "encryptField",
+        "kind": "function",
+        "file": "supabase\\functions\\create-intimacao-with-check\\index.ts",
+        "line": 37,
+        "exported": false
+      },
+      {
+        "name": "encryptSensitiveData",
+        "kind": "function",
+        "file": "handle-webhook-corrected.ts",
+        "line": 97,
+        "exported": false
+      },
+      {
+        "name": "encryptSensitiveData",
+        "kind": "function",
+        "file": "supabase\\functions\\handle-webhook\\index.ts",
+        "line": 74,
+        "exported": false
+      },
+      {
+        "name": "ensureDirectoryExists",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 131,
+        "exported": false
+      },
+      {
+        "name": "extractHelmetData",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 88,
+        "exported": false
+      },
+      {
+        "name": "extractRoutes",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 50,
+        "exported": false
+      },
+      {
+        "name": "findReactFiles",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 84,
+        "exported": false
+      },
+      {
+        "name": "generateFallbackUrl",
+        "kind": "function",
+        "file": "tools\\generate-llms.js",
+        "line": 117,
+        "exported": false
+      }
+    ],
+    "types": [],
+    "enums": []
+  },
+  "publicAPI": [
+    {
+      "name": "AgendaCalendar",
+      "kind": "function",
+      "file": "src\\components\\dashboard\\AgendaCalendar.jsx",
+      "line": 8,
+      "exported": true
+    },
+    {
+      "name": "AgendaPage",
+      "kind": "function",
+      "file": "src\\pages\\AgendaPage.jsx",
+      "line": 9,
+      "exported": true
+    },
+    {
+      "name": "cn",
+      "kind": "function",
+      "file": "src\\lib\\utils.js",
+      "line": 4,
+      "exported": true
+    },
+    {
+      "name": "decryptSensitiveData",
+      "kind": "function",
+      "file": "src\\lib\\encryptionService.js",
+      "line": 30,
+      "exported": true
+    },
+    {
+      "name": "encryptSensitiveData",
+      "kind": "function",
+      "file": "src\\lib\\encryptionService.js",
+      "line": 7,
+      "exported": true
+    },
+    {
+      "name": "getPopupHTMLTemplate",
+      "kind": "function",
+      "file": "plugins\\visual-editor\\visual-editor-config.js",
+      "line": 79,
+      "exported": true
+    },
+    {
+      "name": "inlineEditDevPlugin",
+      "kind": "function",
+      "file": "plugins\\visual-editor\\vite-plugin-edit-mode.js",
+      "line": 9,
+      "exported": true
+    },
+    {
+      "name": "inlineEditPlugin",
+      "kind": "function",
+      "file": "plugins\\visual-editor\\vite-plugin-react-inline-editor.js",
+      "line": 49,
+      "exported": true
+    },
+    {
+      "name": "InstallPWA",
+      "kind": "function",
+      "file": "src\\components\\InstallPWA.jsx",
+      "line": 13,
+      "exported": true
+    },
+    {
+      "name": "IntimacaoItemContent",
+      "kind": "function",
+      "file": "src\\components\\dashboard\\intimacao\\IntimacaoItemContent.jsx",
+      "line": 6,
+      "exported": true
+    },
+    {
+      "name": "isEncrypted",
+      "kind": "function",
+      "file": "src\\lib\\encryptionService.js",
+      "line": 140,
+      "exported": true
+    },
+    {
+      "name": "LoginForm",
+      "kind": "function",
+      "file": "src\\components\\auth\\LoginForm.jsx",
+      "line": 12,
+      "exported": true
+    },
+    {
+      "name": "maskSensitiveData",
+      "kind": "function",
+      "file": "src\\lib\\encryptionService.js",
+      "line": 161,
+      "exported": true
+    },
+    {
+      "name": "PerfilPage",
+      "kind": "function",
+      "file": "src\\pages\\PerfilPage.jsx",
+      "line": 10,
+      "exported": true
+    },
+    {
+      "name": "ThemeProvider",
+      "kind": "function",
+      "file": "src\\contexts\\ThemeContext.jsx",
+      "line": 5,
+      "exported": true
+    },
+    {
+      "name": "ThemeToggle",
+      "kind": "function",
+      "file": "src\\components\\ThemeToggle.jsx",
+      "line": 6,
+      "exported": true
+    },
+    {
+      "name": "UpdatePasswordPage",
+      "kind": "function",
+      "file": "src\\components\\auth\\UpdatePasswordPage.jsx",
+      "line": 12,
+      "exported": true
+    },
+    {
+      "name": "useConfirmationModal",
+      "kind": "function",
+      "file": "src\\hooks\\useConfirmationModal.js",
+      "line": 11,
+      "exported": true
+    },
+    {
+      "name": "useDebounce",
+      "kind": "function",
+      "file": "src\\hooks\\useDebounce.js",
+      "line": 11,
+      "exported": true
+    },
+    {
+      "name": "useIntimacoes",
+      "kind": "function",
+      "file": "src\\hooks\\useIntimacoes.js",
+      "line": 8,
+      "exported": true
+    },
+    {
+      "name": "useMultipleModals",
+      "kind": "function",
+      "file": "src\\hooks\\useConfirmationModal.js",
+      "line": 52,
+      "exported": true
+    },
+    {
+      "name": "useToast",
+      "kind": "function",
+      "file": "src\\components\\ui\\use-toast.js",
+      "line": 68,
+      "exported": true
+    }
+  ],
+  "dependencies": {
+    "mostImported": [
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\contexts\\ThemeContext.jsx",
+        "importedBy": 5
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\lib\\customSupabaseClient.js",
+        "importedBy": 3
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\contexts\\SupabaseAuthContext.jsx",
+        "importedBy": 3
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\lib\\webhookService.js",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\lib\\auditService.js",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\button.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\TooltipContent.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\CollapsibleCard.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\StatusLabel.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\InfoItem.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\ConfirmationModal.jsx",
+        "importedBy": 2
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\plugins\\visual-editor\\visual-editor-config.js",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\App.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\index.css",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\ui\\toaster.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\session\\IdleTimeoutHandler.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\components\\Layout.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\routes\\ProtectedRoute.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\pages\\Dashboard.jsx",
+        "importedBy": 1
+      },
+      {
+        "file": "C:\\Users\\lukas\\Desktop\\INTIMA AI\\intimai.app\\src\\pages\\LoginPage.jsx",
+        "importedBy": 1
+      }
+    ]
+  },
+  "stats": {
+    "totalSymbols": 76,
+    "exportedSymbols": 22,
+    "analysisTimeMs": 599
+  }
+}
