@@ -150,19 +150,9 @@ export function Dashboard() {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div>
-            <p className="text-sm text-muted-foreground">Total de Intimações</p>
-            <p className="text-2xl font-bold">{totalIntimacoes}</p>
-          </div>
-          <Button onClick={() => setShowCreateModal(true)} className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Intimação
-          </Button>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
+        <CardHeader className="flex flex-row flex-wrap items-center gap-4 space-y-0 pb-2">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
             <Select value={monthFilter} onValueChange={setMonthFilter}>
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Filtrar por mês" />
@@ -176,6 +166,16 @@ export function Dashboard() {
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total de Intimações</p>
+            <p className="text-2xl font-bold">{totalIntimacoes}</p>
+          </div>
+          <Button onClick={() => setShowCreateModal(true)} className="btn-primary ml-auto">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Intimação
+          </Button>
+        </CardHeader>
+        <CardContent className="p-4">
           <StatsChart data={statsData} />
         </CardContent>
       </Card>
