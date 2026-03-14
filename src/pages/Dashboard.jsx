@@ -1,8 +1,15 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useIntimacoes } from '@/hooks/useIntimacoes';
 import { CreateIntimacaoModal } from '../components/dashboard/CreateIntimacaoModal';
 import StatsChart from '../components/dashboard/StatsChart';
@@ -10,15 +17,36 @@ import { chartColors } from '@/config/chartColors';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
 
+function buildMonthOptions() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const options = [{ value: 'all', label: 'Todos os períodos' }];
+  for (let y = year; y >= year - 1; y--) {
+    const start = y === year ? now.getMonth() : 11;
+    for (let m = start; m >= 0; m--) {
+      options.push({
+        value: `${y}-${String(m + 1).padStart(2, '0')}`,
+        label: `${MESES[m]} ${y}`,
+      });
+    }
+  }
+  return options;
+}
+
+const MONTH_OPTIONS = buildMonthOptions();
 
 export function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [monthFilter, setMonthFilter] = useState('all');
   const { user } = useAuth();
   
   const { fetchIntimacoesWithFilters } = useIntimacoes();
   
-  // Buscar TODAS as intimações para o Dashboard (sem paginação)
   const [allIntimacoes, setAllIntimacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +56,7 @@ export function Dashboard() {
     try {
       const { data, error } = await supabase
         .from('intimacoes')
-        .select('status, userId')
+        .select('status, userId, criadoEm')
         .eq('userId', user.id);
       
       if (error) {
@@ -48,6 +76,16 @@ export function Dashboard() {
     fetchAllIntimacoes();
   }, [fetchAllIntimacoes]);
 
+  const intimacoesFiltered = useMemo(() => {
+    if (monthFilter === 'all') return allIntimacoes;
+    const [year, month] = monthFilter.split('-').map(Number);
+    return allIntimacoes.filter((int) => {
+      if (!int.criadoEm) return false;
+      const d = new Date(int.criadoEm);
+      return d.getFullYear() === year && d.getMonth() + 1 === month;
+    });
+  }, [allIntimacoes, monthFilter]);
+
   const statsData = useMemo(() => {
     const counts = {
       pendentes: 0,
@@ -60,7 +98,6 @@ export function Dashboard() {
       ausentes: 0,
     };
 
-    // Mapeia o status da intimação (singular) para a chave de contagem (plural)
     const statusToPlural = {
       pendente: 'pendentes',
       entregue: 'entregues',
@@ -72,14 +109,12 @@ export function Dashboard() {
       ausente: 'ausentes',
     };
 
-    allIntimacoes.forEach(intimacao => {
+    intimacoesFiltered.forEach(intimacao => {
       const pluralStatus = statusToPlural[intimacao.status];
-      if (pluralStatus) {
-        counts[pluralStatus]++;
-      }
+      if (pluralStatus) counts[pluralStatus]++;
     });
 
-    const data = [
+    return [
       { name: 'Pendentes', value: counts.pendentes, color: chartColors.pendentes },
       { name: 'Entregues', value: counts.entregues, color: chartColors.entregues },
       { name: 'Ativas', value: counts.ativas, color: chartColors.ativas },
@@ -89,12 +124,9 @@ export function Dashboard() {
       { name: 'Finalizadas', value: counts.finalizadas, color: chartColors.finalizadas },
       { name: 'Ausentes', value: counts.ausentes, color: chartColors.ausentes },
     ].filter(item => item.value > 0);
+  }, [intimacoesFiltered]);
 
-    return data;
-  }, [allIntimacoes]);
-
-  const totalIntimacoes = allIntimacoes.length;
-  const mesAtual = new Date().toLocaleString('default', { month: 'long' });
+  const totalIntimacoes = intimacoesFiltered.length;
 
   if (loading) {
     return (
@@ -129,6 +161,21 @@ export function Dashboard() {
           </Button>
         </CardHeader>
         <CardContent className="p-4 space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Calendar className="w-4 h-4 text-muted-foreground" />
+            <Select value={monthFilter} onValueChange={setMonthFilter}>
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Filtrar por mês" />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTH_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <StatsChart data={statsData} />
         </CardContent>
       </Card>

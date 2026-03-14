@@ -133,9 +133,6 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome, int
           <DialogTitle className="text-xl">
             Histórico de Conversa - {intimadoNome}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Sessão: {sessionId}
-          </p>
         </DialogHeader>
 
         {loading ? (
