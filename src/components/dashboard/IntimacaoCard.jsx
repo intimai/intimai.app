@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { X, RefreshCcw, MessageSquare } from 'lucide-react';
+import { X, RefreshCcw, MessageSquare, Copy } from 'lucide-react';
 import CollapsibleCard from '../ui/CollapsibleCard';
 import StatusLabel from '../ui/StatusLabel';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { IntimacaoItemHeader } from './intimacao/IntimacaoItemHeader';
 import { IntimacaoItemContent } from './intimacao/IntimacaoItemContent';
 import { IntimacaoModalsGroup } from './intimacao/IntimacaoModalsGroup';
 import { ChatHistoryModal } from './ChatHistoryModal';
+import { toast } from '@/components/ui/use-toast';
 
 export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
   // Função memoizada para evitar re-renders
@@ -31,6 +32,26 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
 
   const handleReativarClick = () => {
     setIsReativarModalOpen(true); // MESMA lógica mantida
+  };
+
+  const handleCopy = async (value, label, event) => {
+    event.stopPropagation();
+
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(String(value));
+      toast({
+        title: `${label} copiado`,
+        description: String(value),
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao copiar',
+        description: `Nao foi possivel copiar ${label.toLowerCase()}.`,
+        variant: 'destructive',
+      });
+    }
   };
 
   const renderActionsContent = () => {
@@ -91,7 +112,20 @@ export function IntimacaoCard({ intimacao, onCancel, onReativar }) {
         <StatusLabel status={intimacao.status} />
       </div>
       <div className="flex justify-between items-center mt-1">
-        <p className="text-xs text-gray-400">Doc: {intimacao.documento}</p>
+        <div className="flex items-center gap-2 min-w-0">
+          <p className="text-xs text-gray-400 truncate">Doc: {intimacao.documento}</p>
+          {intimacao.documento && (
+            <button
+              type="button"
+              onClick={(event) => handleCopy(intimacao.documento, 'Documento', event)}
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              title="Copiar documento"
+              aria-label="Copiar documento"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {/* Botão Ver Chat */}
           {intimacao.telefone && (
