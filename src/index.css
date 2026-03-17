@@ -13,6 +13,7 @@
 
 :root {
   --background: transparent;
+  --page-background: 30 18% 96%;
   --foreground: 30 8% 10%;
   --card: 30 10% 92%;
   --card-foreground: 30 8% 10%;
@@ -39,6 +40,7 @@
 
 .dark {
   --background: transparent;
+  --page-background: 240 10% 6%;
   --foreground: 0 0% 98%;
   --card: 0 0% 3.9%;
   --card-foreground: 0 0% 98%;
@@ -63,12 +65,20 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    background-color: hsl(var(--page-background));
+  }
+
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
     font-family: 'Montserrat', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 

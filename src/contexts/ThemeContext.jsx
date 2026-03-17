@@ -1,23 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
 
 const ThemeProviderContext = createContext(null);
+
+const getResolvedTheme = (theme) => {
+  if (theme === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  return theme;
+};
+
+const applyTheme = (theme) => {
+  const root = window.document.documentElement;
+  const resolvedTheme = getResolvedTheme(theme);
+
+  root.classList.toggle('dark', resolvedTheme === 'dark');
+  root.classList.toggle('light', resolvedTheme === 'light');
+  root.style.colorScheme = resolvedTheme;
+};
 
 export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 'vite-ui-theme' }) {
   const [theme, setTheme] = useState(
     () => localStorage.getItem(storageKey) || defaultTheme
   );
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+  useLayoutEffect(() => {
+    applyTheme(theme);
 
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-      return;
+    if (theme !== 'system') {
+      return undefined;
     }
 
-    root.classList.add(theme);
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => applyTheme('system');
+
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, [theme]);
 
   const value = {
