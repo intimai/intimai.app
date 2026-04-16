@@ -161,14 +161,14 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome, int
       let origin, content, timestamp;
 
       if (source === 'chat') {
-        origin = msg.origem === 'intimai' ? 'IntimAI' : 'Intimado';
+        origin = msg.origem === 'intimai' ? 'IntimAI' : (intimadoNome || 'Intimado');
         content = msg.mensagem || '';
         timestamp = msg.created_at
           ? new Date(msg.created_at).toLocaleString('pt-BR')
           : '';
       } else {
         const isAI = msg.message?.type === 'ai';
-        origin = isAI ? 'IntimAI' : 'Intimado';
+        origin = isAI ? 'IntimAI' : (intimadoNome || 'Intimado');
         content = msg.message?.content || '';
         timestamp = '';
         if (content === 'identidade_confirmada' || !content) return;
