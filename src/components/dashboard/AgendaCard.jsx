@@ -11,6 +11,20 @@ import AgendaModalsGroup from './agenda/AgendaModalsGroup';
 const AgendaItem = ({ intimacao, refetch, fetchIntimacoes }) => {
   const { cancelIntimacao, marcarComoAusente, marcarComoCompareceu } = useIntimacoes();
 
+  const handleCopy = useCallback(async (value, label) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(String(value));
+      toast({ title: `${label} copiado`, description: String(value) });
+    } catch (error) {
+      toast({
+        title: 'Erro ao copiar',
+        description: `Nao foi possivel copiar ${label.toLowerCase()}.`,
+        variant: 'destructive',
+      });
+    }
+  }, []);
+
   // Funções memoizadas para evitar re-renders infinitos
   const handleCancel = useCallback(async () => {
     try {
@@ -114,10 +128,10 @@ const AgendaItem = ({ intimacao, refetch, fetchIntimacoes }) => {
     <li className="bg-card p-4 rounded-lg border shadow transition-transform duration-300 hover:-translate-y-1">
       <CollapsibleCard header={renderHeader()} actions={renderActions()}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
-          <InfoItem icon={<FileText />} label="Documento" value={intimacao.documento} />
-          <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} />
-          <InfoItem icon={<FileType />} label="Tipo de Procedimento" value={intimacao.tipoProcedimento} />
-          <InfoItem icon={<Hash />} label="Nº Procedimento" value={intimacao.numeroProcedimento} />
+          <InfoItem icon={<FileText />} label="Documento" value={intimacao.documento} copyValue={intimacao.documento} onCopy={handleCopy} />
+          <InfoItem icon={<Phone />} label="Telefone" value={intimacao.telefone} copyValue={intimacao.telefone} onCopy={handleCopy} />
+          <InfoItem icon={<FileType />} label="Tipo de Procedimento" value={intimacao.tipoProcedimento} copyValue={intimacao.tipoProcedimento} onCopy={handleCopy} />
+          <InfoItem icon={<Hash />} label="Nº Procedimento" value={intimacao.numeroProcedimento} copyValue={intimacao.numeroProcedimento} onCopy={handleCopy} />
         </div>
       </CollapsibleCard>
 

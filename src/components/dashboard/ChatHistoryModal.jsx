@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/customSupabaseClient';
-import { Loader2, User, Bot } from 'lucide-react';
+import { Loader2, User, Bot, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import jsPDF from 'jspdf';
 
 export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome, intimacaoId }) {
   const [messages, setMessages] = useState([]);
@@ -126,13 +128,107 @@ export function ChatHistoryModal({ isOpen, onClose, sessionId, intimadoNome, int
   const renderMessage = (msg) =>
     source === 'chat' ? renderMessageFromChat(msg) : renderMessageFromN8n(msg);
 
+  const generateChatPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const maxLineWidth = pageWidth - margin * 2;
+    let y = 20;
+
+    // Header
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Historico de Conversa', margin, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Intimado: ${intimadoNome || 'N/A'}`, margin, y);
+    y += 6;
+
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, y);
+    y += 10;
+
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+    doc.setTextColor(0);
+
+    messages.forEach((msg) => {
+      let origin, content, timestamp;
+
+      if (source === 'chat') {
+        origin = msg.origem === 'intimai' ? 'IntimAI' : 'Intimado';
+        content = msg.mensagem || '';
+        timestamp = msg.created_at
+          ? new Date(msg.created_at).toLocaleString('pt-BR')
+          : '';
+      } else {
+        const isAI = msg.message?.type === 'ai';
+        origin = isAI ? 'IntimAI' : 'Intimado';
+        content = msg.message?.content || '';
+        timestamp = '';
+        if (content === 'identidade_confirmada' || !content) return;
+      }
+
+      if (y > pageHeight - 30) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(origin === 'IntimAI' ? 80 : 0);
+      const label = timestamp ? `${origin} - ${timestamp}` : origin;
+      doc.text(label, margin, y);
+      y += 5;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(50);
+      const lines = doc.splitTextToSize(content, maxLineWidth);
+      lines.forEach((line) => {
+        if (y > pageHeight - 20) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += 5;
+      });
+
+      y += 4;
+    });
+
+    const safeName = (intimadoNome || 'chat')
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s+/g, '_');
+    doc.save(`chat_${safeName}_${Date.now()}.pdf`);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl w-[95vw] max-h-[85vh] flex flex-col bg-card p-6 md:p-8 rounded-xl shadow-elegant border border-border/50 z-50">
         <DialogHeader className="pb-4 border-b border-border/30">
-          <DialogTitle className="text-xl">
-            Histórico de Conversa - {intimadoNome}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl">
+              Histórico de Conversa - {intimadoNome}
+            </DialogTitle>
+            {!loading && messages.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generateChatPDF}
+                className="flex items-center gap-2 ml-4"
+                title="Baixar conversa em PDF"
+              >
+                <Download className="w-4 h-4" />
+                PDF
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         {loading ? (
