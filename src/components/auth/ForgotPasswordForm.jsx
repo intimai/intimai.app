@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,18 +9,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { toast } from '@/components/ui/use-toast';
 
+const RESEND_COOLDOWN_SECONDS = 30;
+
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [sent, setSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const { passwordRecovery } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setInterval(() => setCooldown((c) => (c > 0 ? c - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [cooldown]);
 
+  const sendRecoveryEmail = async () => {
+    setLoading(true);
     const { error } = await passwordRecovery(email);
+    setLoading(false);
 
     if (error) {
       toast({
@@ -28,15 +35,25 @@ export function ForgotPasswordForm() {
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      setMessage('Se um usuário com este e-mail existir, um link de recuperação de senha será enviado.');
-      toast({
-        title: "Email de recuperação enviado!",
-        description: "Por favor, verifique sua caixa de entrada.",
-      });
+      return;
     }
 
-    setLoading(false);
+    setSent(true);
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+    toast({
+      title: "Email de recuperação enviado!",
+      description: "Verifique sua caixa de entrada e a pasta de spam.",
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await sendRecoveryEmail();
+  };
+
+  const handleResend = async () => {
+    if (cooldown > 0 || loading) return;
+    await sendRecoveryEmail();
   };
 
   return (
@@ -65,23 +82,46 @@ export function ForgotPasswordForm() {
               </div>
             </div>
 
-            {message && <p className="text-sm text-green-600 text-center">{message}</p>}
+            {sent && (
+              <div className="text-sm text-center space-y-2 p-3 rounded-md bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900">
+                <p className="text-green-700 dark:text-green-400 font-medium">
+                  Email enviado! Verifique sua caixa de entrada.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Se não chegar em 5 minutos, confira a pasta de <strong>spam/lixo eletrônico</strong>.
+                  Caso persista, entre em contato com o suporte.
+                </p>
+              </div>
+            )}
 
-            <Button
-              type="submit"
-              className="w-full btn-primary"
-              disabled={loading}
-            >
-              {loading ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                />
-              ) : (
-                'Enviar Link de Recuperação'
-              )}
-            </Button>
+            {!sent ? (
+              <Button
+                type="submit"
+                className="w-full btn-primary"
+                disabled={loading}
+              >
+                {loading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                  />
+                ) : (
+                  'Enviar Link de Recuperação'
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={cooldown > 0 || loading}
+                onClick={handleResend}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {cooldown > 0 ? `Reenviar em ${cooldown}s` : 'Reenviar email'}
+              </Button>
+            )}
           </form>
 
           <div className="mt-6 text-center">

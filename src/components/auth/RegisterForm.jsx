@@ -127,14 +127,15 @@ export function RegisterForm() {
 
       if (!error) {
         toast({
-          title: "Verifique seu email!",
-          description: "Enviamos um link de confirmação para seu email.",
+          title: "Cadastro realizado! Verifique seu email",
+          description: "Enviamos um link de confirmação. Cheque a caixa de entrada E a pasta de spam. Se não chegar em alguns minutos, contate o suporte.",
+          duration: 8000,
         });
-        
-        // Redirecionar para login após 3 segundos para usuário ver a mensagem
+
+        // Redirecionar para login após 6 segundos para o usuário ler a mensagem
         setTimeout(() => {
           window.location.href = '/login';
-        }, 3000);
+        }, 6000);
       } else {
         // Tratar erro 422 (email já existe) e outros erros
         if (error.message?.includes('already') || error.message?.includes('exists')) {
